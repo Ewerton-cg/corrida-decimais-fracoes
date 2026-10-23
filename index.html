@@ -3,955 +3,3030 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A Corrida dos Decimais e Frações - Jogo de Matemática (6º Ano)</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <title>A Jornada dos Números · Corrida dos Decimais e Frações (6º Ano)</title>
+  <meta name="description" content="Jogo de RPG educativo de frações e números decimais para o 6º ano (BNCC), com XP, conquistas e loja de prêmios reais.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=MedievalSharp&family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;700;800&display=swap');
+    /* ==========================================================================
+       TOKENS
+       ========================================================================== */
+    :root {
+      --bg: #0b0812;
+      --bg-2: #140f22;
+      --stone: #1b1430;
+      --stone-2: #251c3f;
+      --stone-3: #31264f;
+      --line: rgba(232, 185, 74, 0.28);
+      --line-strong: rgba(232, 185, 74, 0.6);
+      --gold: #e8b94a;
+      --gold-2: #ffd977;
+      --gold-dark: #8a5a12;
+      --text: #f4ecdf;
+      --muted: #b9ab93;
+      --faint: #7d7064;
+      --parch: #f4e6c4;
+      --parch-2: #e3cb98;
+      --ink: #2a1a0b;
+      --ink-soft: #5b4026;
+      --emerald: #38d483;
+      --ruby: #ef4f63;
+      --sapphire: #4ea8ff;
+      --amethyst: #b07cff;
+      --ember: #ff8a3d;
+      --radius: 16px;
+      --font-title: 'Cinzel', Georgia, serif;
+      --font-fancy: 'MedievalSharp', 'Cinzel', Georgia, serif;
+      --font-body: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
 
     body {
-      font-family: 'Nunito', sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
-      color: #f8fafc;
+      margin: 0;
       min-height: 100vh;
+      font-family: var(--font-body);
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% -10%, rgba(176, 124, 255, 0.18), transparent 60%),
+        radial-gradient(900px 500px at 110% 10%, rgba(255, 138, 61, 0.12), transparent 60%),
+        radial-gradient(800px 600px at 50% 120%, rgba(56, 212, 131, 0.10), transparent 60%),
+        var(--bg);
       overflow-x: hidden;
-      user-select: none;
     }
 
-    h1, h2, h3, .font-fun {
-      font-family: 'Fredoka', cursive;
+    /* Starfield + embers */
+    body::before, body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    body::before {
+      background-image:
+        radial-gradient(1px 1px at 20px 30px, #fff8, transparent),
+        radial-gradient(1px 1px at 120px 80px, #fff6, transparent),
+        radial-gradient(1.5px 1.5px at 200px 160px, #ffd97788, transparent),
+        radial-gradient(1px 1px at 300px 40px, #fff5, transparent),
+        radial-gradient(1px 1px at 380px 220px, #fff6, transparent);
+      background-size: 420px 260px;
+      opacity: 0.6;
+    }
+    body::after {
+      background-image:
+        radial-gradient(3px 3px at 10% 100%, #ff8a3daa, transparent),
+        radial-gradient(2px 2px at 30% 100%, #ffd977aa, transparent),
+        radial-gradient(3px 3px at 55% 100%, #ff8a3d88, transparent),
+        radial-gradient(2px 2px at 75% 100%, #ffd97799, transparent),
+        radial-gradient(2px 2px at 90% 100%, #ff8a3d99, transparent);
+      background-size: 100% 100%;
+      animation: embers 9s linear infinite;
+      opacity: 0.55;
+    }
+    @keyframes embers {
+      from { transform: translateY(0); opacity: 0.6; }
+      to { transform: translateY(-100vh); opacity: 0; }
     }
 
-    /* Glassmorphism Card Style */
-    .glass-card {
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    h1, h2, h3, h4 { font-family: var(--font-title); margin: 0; letter-spacing: 0.02em; }
+    p { margin: 0; }
+    button { font: inherit; color: inherit; }
+    input, select { font: inherit; }
+    [hidden] { display: none !important; }
+
+    .app {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 12px 16px 32px;
     }
 
-    .glass-card-light {
-      background: rgba(255, 255, 255, 0.95);
-      color: #0f172a;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    /* ==========================================================================
+       BUILDING BLOCKS
+       ========================================================================== */
+    .panel {
+      position: relative;
+      background: linear-gradient(180deg, var(--stone-2), var(--stone));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 14px 34px rgba(0, 0, 0, 0.45);
+    }
+    .panel.ornate::before {
+      content: '';
+      position: absolute;
+      inset: 5px;
+      border: 1px solid rgba(232, 185, 74, 0.16);
+      border-radius: calc(var(--radius) - 5px);
+      pointer-events: none;
     }
 
-    /* Button Pulse Animation */
-    .btn-pulse {
-      animation: pulse-glow 2s infinite;
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: var(--stone-3);
+      color: var(--text);
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.2s ease, opacity 0.2s;
+      text-decoration: none;
+      line-height: 1.1;
+    }
+    .btn:hover { background: #3b2f5e; }
+    .btn:active { transform: translateY(2px); }
+    .btn:focus-visible, .choice:focus-visible, .tab:focus-visible, .mode-card:focus-visible, .avatar-pick:focus-visible {
+      outline: 3px solid var(--gold-2);
+      outline-offset: 3px;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    .btn-gold {
+      background: linear-gradient(180deg, var(--gold-2), #d9982b);
+      color: var(--ink);
+      border-color: #fff4;
+      font-family: var(--font-title);
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      box-shadow: 0 4px 0 var(--gold-dark), 0 10px 24px rgba(232, 185, 74, 0.3);
+    }
+    .btn-gold:hover { background: linear-gradient(180deg, #ffe596, #e3a537); }
+    .btn-gold:active { box-shadow: 0 1px 0 var(--gold-dark), 0 4px 12px rgba(232, 185, 74, 0.3); transform: translateY(3px); }
+    .btn-gold:disabled { box-shadow: none; }
+    .btn-lg { padding: 16px 28px; font-size: 1.15rem; border-radius: 14px; }
+    .btn-sm { padding: 8px 12px; font-size: 0.85rem; border-radius: 10px; }
+    .btn-danger { background: #5a1a26; border-color: #ef4f6366; }
+    .btn-danger:hover { background: #74202f; }
+    .btn-ghost { background: transparent; }
+    .btn-ghost:hover { background: rgba(255, 255, 255, 0.06); }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      white-space: nowrap;
+    }
+    .chip.gold { color: var(--gold-2); border-color: var(--line); background: rgba(232, 185, 74, 0.1); }
+    .chip.green { color: #8ff0bd; border-color: #38d48355; background: #38d4831a; }
+    .chip.blue { color: #a8d3ff; border-color: #4ea8ff55; background: #4ea8ff1a; }
+    .chip.red { color: #ffa3ae; border-color: #ef4f6355; background: #ef4f631a; }
+    .chip.purple { color: #d8bcff; border-color: #b07cff55; background: #b07cff1a; }
+
+    .eyebrow {
+      font-family: var(--font-title);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .muted { color: var(--muted); }
+    .small { font-size: 0.85rem; }
+    .center { text-align: center; }
+    .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .between { justify-content: space-between; }
+    .grow { flex: 1; }
+    .divider {
+      height: 1px;
+      margin: 14px 0;
+      background: linear-gradient(90deg, transparent, var(--line-strong), transparent);
     }
 
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 15px rgba(236, 72, 153, 0.5); }
-      50% { box-shadow: 0 0 30px rgba(236, 72, 153, 0.9); }
+    .field {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #120d1f;
+      color: var(--text);
+    }
+    .field:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+
+    .bar {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+    .bar > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--amethyst), var(--sapphire));
+      transition: width 0.6s ease;
     }
 
-    /* Dice Animation */
+    /* ==========================================================================
+       HEADER
+       ========================================================================== */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; cursor: pointer; background: none; border: 0; padding: 0; text-align: left; }
+    .crest {
+      width: 44px; height: 44px;
+      display: grid; place-items: center;
+      font-size: 24px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 30% 30%, #ffe596, #c47f1c);
+      box-shadow: 0 0 0 2px #00000055, 0 0 18px rgba(232, 185, 74, 0.45);
+    }
+    .brand-title { font-family: var(--font-title); font-weight: 900; font-size: 1.1rem; color: var(--gold-2); line-height: 1.1; }
+    .brand-sub { font-size: 0.75rem; color: var(--muted); }
+    .top-actions { display: flex; gap: 8px; }
+
+    /* ==========================================================================
+       HOME
+       ========================================================================== */
+    .hero {
+      padding: 40px 24px 32px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero-logo {
+      font-family: var(--font-title);
+      font-weight: 900;
+      font-size: clamp(2rem, 6vw, 4rem);
+      line-height: 1.02;
+      background: linear-gradient(180deg, #fff3c4 0%, var(--gold-2) 40%, #c47f1c 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 4px 0 #3a2408) drop-shadow(0 0 30px rgba(232, 185, 74, 0.35));
+    }
+    .hero-sub {
+      margin-top: 10px;
+      font-family: var(--font-fancy);
+      font-size: clamp(1rem, 2.4vw, 1.35rem);
+      color: #e9d7b3;
+    }
+    .hero-text { max-width: 640px; margin: 16px auto 26px; color: var(--muted); }
+    .hero-emblems { font-size: clamp(2.2rem, 6vw, 3.4rem); margin-bottom: 8px; letter-spacing: 0.2em; }
+    .hero-emblems span { display: inline-block; animation: float 3.2s ease-in-out infinite; }
+    .hero-emblems span:nth-child(2) { animation-delay: 0.4s; }
+    .hero-emblems span:nth-child(3) { animation-delay: 0.8s; }
+    @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      max-width: 640px;
+      margin: 18px auto 0;
+    }
+    .menu-grid .btn { padding: 14px 10px; flex-direction: column; gap: 4px; }
+    .menu-grid .btn .ico { font-size: 1.5rem; }
+
+    .realms {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .realm-card {
+      padding: 18px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+      min-height: 150px;
+    }
+    .realm-card .big { position: absolute; right: -6px; bottom: -14px; font-size: 5rem; opacity: 0.25; }
+    .realm-card h3 { font-size: 1.05rem; margin: 6px 0; }
+    .realm-card p { font-size: 0.85rem; color: #e6dccb; max-width: 85%; }
+    .realm-1-bg { background: linear-gradient(160deg, #1f5232, #0d2617); }
+    .realm-2-bg { background: linear-gradient(160deg, #1d3d63, #0c1a30); }
+    .realm-3-bg { background: linear-gradient(160deg, #6a1f27, #26080d); }
+
+    .footer { text-align: center; color: var(--faint); font-size: 0.78rem; margin-top: 22px; }
+
+    /* ==========================================================================
+       SETUP
+       ========================================================================== */
+    .page { padding: 22px; }
+    .page-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    .page-head h2 { font-size: clamp(1.3rem, 3vw, 1.8rem); color: var(--gold-2); }
+
+    .mode-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .mode-card {
+      text-align: left;
+      padding: 18px;
+      border-radius: var(--radius);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+    }
+    .mode-card:hover { transform: translateY(-2px); }
+    .mode-card[aria-pressed="true"] { border-color: var(--gold); background: rgba(232, 185, 74, 0.1); box-shadow: 0 0 24px rgba(232, 185, 74, 0.2); }
+    .mode-card .big { position: absolute; right: 10px; bottom: 4px; font-size: 3.4rem; opacity: 0.3; }
+    .mode-card h3 { font-size: 1.1rem; margin: 4px 0 6px; }
+
+    .count-row { display: flex; gap: 10px; }
+    .count-btn { width: 52px; height: 52px; font-size: 1.2rem; }
+    .count-btn[aria-pressed="true"] { border-color: var(--gold); background: rgba(232, 185, 74, 0.18); color: var(--gold-2); }
+
+    .slots { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+    .slot { padding: 14px; border-radius: 14px; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.08); }
+    .slot label { display: block; font-size: 0.8rem; font-weight: 800; color: var(--muted); margin-bottom: 6px; }
+    .avatar-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .avatar-pick {
+      width: 42px; height: 42px;
+      font-size: 1.4rem;
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background: rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+    }
+    .avatar-pick[aria-pressed="true"] { border-color: var(--gold); background: rgba(232, 185, 74, 0.18); }
+    .slot-class { font-size: 0.78rem; color: var(--gold-2); margin-top: 6px; min-height: 1em; }
+
+    .form-error { color: #ffa3ae; font-weight: 800; font-size: 0.9rem; min-height: 1.2em; margin-top: 10px; }
+
+    /* ==========================================================================
+       GAME
+       ========================================================================== */
+    .game { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 14px; align-items: start; }
+    .game-main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+    .game-side { display: flex; flex-direction: column; gap: 14px; }
+
+    .realm-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 10px; }
+    .realm-step {
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.25);
+      min-width: 0;
+    }
+    .realm-step.active { border-color: var(--gold); box-shadow: 0 0 16px rgba(232, 185, 74, 0.25) inset; }
+    .realm-step .name { font-family: var(--font-title); font-weight: 800; font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .realm-step .who { font-size: 1rem; min-height: 1.3em; letter-spacing: 0.1em; }
+
+    .board-wrap { padding: 14px; overflow: hidden; }
+    .board-wrap.realm-1 { --t1: #24603a; --t2: #12331f; --glow: #38d483; }
+    .board-wrap.realm-2 { --t1: #23476f; --t2: #0f2140; --glow: #7cc8ff; }
+    .board-wrap.realm-3 { --t1: #6b2530; --t2: #2c0c12; --glow: #ff8a3d; }
+    .board-wrap::after {
+      content: attr(data-deco);
+      position: absolute;
+      right: 10px;
+      top: 4px;
+      font-size: 3rem;
+      opacity: 0.18;
+      pointer-events: none;
+    }
+    .board-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .board-head h3 { font-size: 1.15rem; color: var(--gold-2); }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-template-rows: repeat(4, auto);
+      gap: 10px;
+    }
+    .tile {
+      position: relative;
+      min-height: 84px;
+      border-radius: 14px;
+      padding: 6px;
+      background: linear-gradient(160deg, var(--t1), var(--t2));
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: inset 0 -6px 12px rgba(0, 0, 0, 0.35), 0 4px 10px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-width: 0;
+    }
+    .tile .num { font-family: var(--font-title); font-weight: 900; font-size: 0.85rem; color: rgba(255, 255, 255, 0.55); }
+    .tile .icon { position: absolute; right: 6px; top: 4px; font-size: 1.15rem; }
+    .tile .tag { font-size: 0.6rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(255, 255, 255, 0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tile.chest { border-color: #e8b94a88; }
+    .tile.portal { border-color: #b07cff99; }
+    .tile.trap { border-color: #ef4f6399; }
+    .tile.tavern { border-color: #ff8a3d99; }
+    .tile.start { border-color: #ffffff55; }
+    .tile.boss {
+      border-color: var(--glow);
+      background: linear-gradient(160deg, #3a0f16, #120307);
+      animation: bossGlow 2.4s ease-in-out infinite;
+    }
+    .tile.boss .icon { font-size: 1.8rem; top: 50%; right: 50%; transform: translate(50%, -60%); opacity: 0.85; }
+    @keyframes bossGlow {
+      0%, 100% { box-shadow: 0 0 0 rgba(255, 80, 80, 0), inset 0 -6px 12px rgba(0, 0, 0, 0.35); }
+      50% { box-shadow: 0 0 22px rgba(255, 80, 80, 0.55), inset 0 -6px 12px rgba(0, 0, 0, 0.35); }
+    }
+    .tile.here { outline: 3px solid var(--gold-2); outline-offset: 2px; }
+    .tokens { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; min-height: 30px; align-items: flex-end; position: relative; z-index: 1; }
+    .token {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      display: grid; place-items: center;
+      font-size: 1rem;
+      background: radial-gradient(circle at 35% 30%, #fff8, transparent 45%), var(--c, #666);
+      border: 2px solid #fff;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.55);
+    }
+    .token.active { box-shadow: 0 0 0 3px var(--gold-2), 0 0 16px var(--gold-2); transform: scale(1.12); z-index: 2; }
+    .token.hop { animation: hop 0.28s ease-out; }
+    @keyframes hop { 0% { transform: translateY(0) scale(1.12); } 45% { transform: translateY(-16px) scale(1.18); } 100% { transform: translateY(0) scale(1.12); } }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+    /* Action panel */
+    .action { padding: 18px; text-align: center; }
+    .turn-name { font-family: var(--font-title); font-size: 1.2rem; font-weight: 900; color: var(--gold-2); margin: 4px 0 2px; }
+    .dice-box { display: grid; place-items: center; margin: 14px 0; perspective: 600px; }
     .dice {
-      transition: transform 0.6s ease-out;
-      transform-style: preserve-3d;
+      width: 84px; height: 84px;
+      border-radius: 18px;
+      background: linear-gradient(145deg, #fff8e6, #e3cb98);
+      box-shadow: inset 0 -6px 0 #b8975a, 0 10px 24px rgba(0, 0, 0, 0.5), 0 0 24px rgba(232, 185, 74, 0.3);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      padding: 12px;
+      gap: 2px;
     }
-    .dice-rolling {
-      animation: roll 0.6s infinite linear;
+    .dice i { display: block; width: 14px; height: 14px; border-radius: 50%; margin: auto; background: transparent; }
+    .dice i.on { background: radial-gradient(circle at 35% 35%, #6a3b16, #2a1a0b); }
+    .dice.rolling { animation: diceRoll 0.45s linear infinite; }
+    @keyframes diceRoll {
+      0% { transform: rotate(0) translateY(0); }
+      25% { transform: rotate(90deg) translateY(-6px); }
+      50% { transform: rotate(180deg) translateY(0); }
+      75% { transform: rotate(270deg) translateY(-6px); }
+      100% { transform: rotate(360deg) translateY(0); }
+    }
+    .hint { font-size: 0.85rem; color: var(--muted); min-height: 2.4em; margin-bottom: 12px; }
+    .action .btn-gold { width: 100%; }
+
+    /* Hero cards */
+    .heroes { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .hero-card {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      gap: 10px;
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.28);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .hero-card.active { border-color: var(--gold); box-shadow: 0 0 18px rgba(232, 185, 74, 0.25); }
+    .hero-card .ava {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: grid; place-items: center; font-size: 1.5rem;
+      background: radial-gradient(circle at 35% 30%, #fff5, transparent 50%), var(--c, #555);
+    }
+    .hero-card .nm { font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hero-card .meta { font-size: 0.75rem; color: var(--muted); }
+    .hearts { font-size: 0.9rem; letter-spacing: 1px; }
+    .combo { color: var(--ember); font-weight: 900; font-size: 0.78rem; }
+
+    .log { padding: 14px; }
+    .log ol { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; max-height: 190px; overflow: auto; }
+    .log li { font-size: 0.82rem; color: #ded3c1; padding: 6px 8px; border-radius: 8px; background: rgba(0, 0, 0, 0.25); }
+
+    /* ==========================================================================
+       MODALS
+       ========================================================================== */
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      background: rgba(6, 4, 12, 0.78);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      overflow-y: auto;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: 560px;
+      padding: 22px;
+      animation: pop 0.25s ease-out;
+    }
+    .modal-card.wide { max-width: 900px; }
+    @keyframes pop { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal-close { position: absolute; right: 12px; top: 10px; }
+
+    /* Parchment question card */
+    .scroll {
+      position: relative;
+      width: 100%;
+      max-width: 640px;
+      padding: 22px;
+      border-radius: 18px;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 10%, #fff6dc, transparent 40%),
+        radial-gradient(circle at 80% 90%, #d8bb83, transparent 50%),
+        linear-gradient(180deg, var(--parch), var(--parch-2));
+      border: 3px solid #8a5a12;
+      box-shadow: 0 0 0 4px #2a1a0b, 0 0 0 6px var(--gold), 0 24px 60px rgba(0, 0, 0, 0.6);
+      animation: pop 0.25s ease-out;
+    }
+    .scroll.boss {
+      color: var(--text);
+      background: radial-gradient(circle at 50% 0%, #5a1520, #1a0508 70%);
+      border-color: #ff5a5a;
+      box-shadow: 0 0 0 4px #1a0508, 0 0 0 6px #ff5a5a, 0 0 60px rgba(255, 60, 60, 0.45);
+    }
+    .boss-banner {
+      display: none;
+      text-align: center;
+      font-family: var(--font-title);
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: #ffb3b3;
+      margin-bottom: 8px;
+    }
+    .scroll.boss .boss-banner { display: block; }
+    .boss-face { font-size: 3rem; display: block; animation: float 1.6s ease-in-out infinite; }
+
+    .q-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .q-who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .q-who .ava { font-size: 2rem; }
+    .q-label { font-size: 0.75rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); }
+    .scroll.boss .q-label { color: #ffb3b3; }
+    .q-cat { font-family: var(--font-title); font-weight: 800; font-size: 1rem; }
+    .lvl { font-size: 0.68rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em; padding: 3px 8px; border-radius: 999px; }
+    .lvl-1 { background: #c9f2d9; color: #0f5130; }
+    .lvl-2 { background: #cfe6ff; color: #13406f; }
+    .lvl-3 { background: #ffd2d8; color: #7a1222; }
+    .timer {
+      font-family: var(--font-title);
+      font-weight: 900;
+      font-size: 1.1rem;
+      padding: 6px 12px;
+      border-radius: 12px;
+      background: #2a1a0b;
+      color: var(--gold-2);
+      white-space: nowrap;
+    }
+    .timer.low { background: #7a1222; color: #fff; animation: pulse 0.6s ease-in-out infinite; }
+    @keyframes pulse { 50% { transform: scale(1.08); } }
+    .timebar { height: 8px; border-radius: 999px; background: rgba(42, 26, 11, 0.2); margin: 12px 0 4px; overflow: hidden; }
+    .timebar span { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #38d483, #e8b94a, #ef4f63); background-size: 300% 100%; transition: width 1s linear; }
+    .q-reward { font-size: 0.85rem; font-weight: 800; color: var(--ink-soft); margin-top: 10px; }
+    .scroll.boss .q-reward { color: #ffcdcd; }
+    .q-text { font-family: var(--font-body); letter-spacing: 0; font-size: clamp(1.25rem, 3.2vw, 1.65rem); font-weight: 900; line-height: 1.3; margin: 6px 0 16px; }
+
+    .choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .choice {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px;
+      text-align: left;
+      border-radius: 12px;
+      border: 2px solid #b8975a;
+      background: rgba(255, 250, 235, 0.75);
+      color: var(--ink);
+      font-weight: 900;
+      font-size: 1.05rem;
+      cursor: pointer;
+      transition: transform 0.12s, background 0.15s, border-color 0.15s;
+    }
+    .choice:hover:not(:disabled) { transform: translateY(-2px); border-color: #8a5a12; background: #fffaf0; }
+    .choice .rune {
+      flex: none;
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: grid; place-items: center;
+      font-family: var(--font-title);
+      font-size: 0.95rem;
+      background: #2a1a0b;
+      color: var(--gold-2);
+    }
+    .scroll.boss .choice { background: rgba(0, 0, 0, 0.35); color: var(--text); border-color: #ff8a8a66; }
+    .scroll.boss .choice:hover:not(:disabled) { background: rgba(255, 255, 255, 0.08); border-color: #ff8a8a; }
+    .choice:disabled { cursor: default; }
+    .choice.right { border-color: #1f9d5a; background: #c9f2d9; color: #0b3b22; }
+    .choice.wrong { border-color: #c0273c; background: #ffd2d8; color: #5a0d18; animation: shake 0.35s; }
+    .choice.dim { opacity: 0.45; }
+    @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+    .feedback { margin-top: 14px; padding: 14px; border-radius: 12px; font-weight: 700; }
+    .feedback.ok { background: #c9f2d9; color: #0b3b22; border: 1px solid #1f9d5a; }
+    .feedback.bad { background: #ffe1e5; color: #5a0d18; border: 1px solid #c0273c; }
+    .feedback h4 { font-size: 1.05rem; margin-bottom: 4px; }
+    .rewards { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .rewards .chip { background: #2a1a0b; color: var(--gold-2); border-color: #2a1a0b; }
+    .q-actions { display: flex; justify-content: flex-end; margin-top: 14px; }
+
+    /* Shop / ranking */
+    .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .item {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 16px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #2d2248, #1c1530);
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+    .item .ico { font-size: 2.4rem; }
+    .item h4 { font-size: 0.98rem; }
+    .item p { font-size: 0.8rem; color: var(--muted); flex: 1; }
+    .price { font-family: var(--font-title); font-weight: 900; color: var(--gold-2); font-size: 1.1rem; }
+    .wallet {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: var(--font-title); font-weight: 900; font-size: 1.25rem;
+      color: var(--gold-2);
+      padding: 8px 14px; border-radius: 12px;
+      background: rgba(232, 185, 74, 0.12); border: 1px solid var(--line);
     }
 
-    @keyframes roll {
-      0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
-      100% { transform: rotateX(720deg) rotateY(360deg) rotateZ(360deg); }
+    .coupon {
+      text-align: center;
+      padding: 18px;
+      border-radius: 14px;
+      border: 2px dashed var(--gold);
+      background: rgba(232, 185, 74, 0.08);
+    }
+    .coupon .code { font-family: var(--font-title); font-weight: 900; font-size: clamp(1.6rem, 6vw, 2.4rem); letter-spacing: 0.12em; color: var(--gold-2); margin: 8px 0; }
+
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.07); vertical-align: middle; }
+    th { font-family: var(--font-title); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); white-space: nowrap; }
+    tr.top1 td:first-child { color: var(--gold-2); font-weight: 900; }
+    .badges { font-size: 1rem; letter-spacing: 2px; }
+
+    .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+    .ach { padding: 10px; border-radius: 12px; background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.07); font-size: 0.8rem; }
+    .ach .i { font-size: 1.4rem; }
+    .ach.locked { opacity: 0.38; filter: grayscale(1); }
+    .ach b { display: block; font-size: 0.85rem; margin: 2px 0; }
+
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+    .tab { padding: 9px 14px; border-radius: 10px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-weight: 800; }
+    .tab[aria-selected="true"] { background: rgba(232, 185, 74, 0.16); color: var(--gold-2); border-color: var(--gold); }
+
+    .edit-row { display: grid; grid-template-columns: 60px minmax(0, 1.2fr) minmax(0, 1.6fr) 90px auto auto; gap: 8px; align-items: center; margin-bottom: 8px; }
+    .edit-row .field { padding: 8px; }
+
+    /* Victory */
+    .podium { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
+    .result {
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .result.win { border-color: var(--gold); box-shadow: 0 0 22px rgba(232, 185, 74, 0.25); }
+    .trophy { font-size: 4rem; text-align: center; animation: float 2s ease-in-out infinite; }
+
+    /* Toasts & floating text */
+    .toasts { position: fixed; top: 14px; right: 14px; z-index: 80; display: flex; flex-direction: column; gap: 8px; max-width: min(340px, calc(100vw - 28px)); }
+    .toast {
+      display: flex; gap: 10px; align-items: center;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #3b2f5e, #231a3a);
+      border: 1px solid var(--gold);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(232, 185, 74, 0.25);
+      animation: toastIn 0.35s ease-out;
+      font-size: 0.88rem;
+    }
+    .toast .i { font-size: 1.6rem; }
+    .toast b { color: var(--gold-2); display: block; }
+    .toast.out { animation: toastOut 0.35s ease-in forwards; }
+    @keyframes toastIn { from { transform: translateX(110%); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes toastOut { to { transform: translateX(110%); opacity: 0; } }
+
+    .floater {
+      position: fixed;
+      z-index: 90;
+      pointer-events: none;
+      font-family: var(--font-title);
+      font-weight: 900;
+      font-size: 1.3rem;
+      color: var(--gold-2);
+      text-shadow: 0 2px 0 #2a1a0b, 0 0 12px rgba(232, 185, 74, 0.8);
+      animation: floatUp 1.3s ease-out forwards;
+    }
+    @keyframes floatUp { from { transform: translate(-50%, 0); opacity: 1; } to { transform: translate(-50%, -70px); opacity: 0; } }
+
+    #fx { position: fixed; inset: 0; pointer-events: none; z-index: 70; }
+
+    .rules li { margin-bottom: 8px; }
+    .rules { padding-left: 20px; margin: 0; color: #e6dccb; font-size: 0.92rem; }
+
+    /* ==========================================================================
+       RESPONSIVE
+       ========================================================================== */
+    @media (max-width: 980px) {
+      .game { grid-template-columns: 1fr; }
+      .game-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .game-side .action { grid-row: span 2; }
+    }
+    @media (max-width: 720px) {
+      .game { display: flex; flex-direction: column; }
+      .game-main, .game-side { display: contents; }
+      .realm-strip { order: 1; }
+      .game-side .action { order: 2; display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 4px 12px; text-align: left; padding: 12px; align-items: center; }
+      .action .eyebrow, .action .turn-name, .action .hint { grid-column: 2; }
+      .action .dice-box { grid-column: 1; grid-row: 1 / span 3; margin: 0; }
+      .action .dice { width: 68px; height: 68px; padding: 9px; border-radius: 14px; }
+      .action .dice i { width: 11px; height: 11px; }
+      .action .hint { min-height: 0; margin: 0; font-size: 0.8rem; }
+      .action .btn-gold { grid-column: 1 / -1; margin-top: 6px; }
+      .action .btn-ghost { grid-column: 1 / -1; margin-top: 0 !important; }
+      .board-wrap { order: 3; }
+      .heroes { order: 4; }
+      .log { order: 5; }
+      .realms, .mode-grid { grid-template-columns: 1fr; }
+      .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .game-side { grid-template-columns: 1fr; }
+      .game-side .action { grid-row: auto; }
+      .board { gap: 6px; }
+      .tile { min-height: 64px; padding: 4px; border-radius: 10px; }
+      .tile .tag { display: none; }
+      .tile .icon { font-size: 0.95rem; right: 3px; top: 2px; }
+      .token { width: 22px; height: 22px; font-size: 0.75rem; border-width: 1.5px; }
+      .tokens { min-height: 22px; }
+      .choices { grid-template-columns: 1fr; }
+      .brand-sub, .hide-sm { display: none; }
+      .edit-row { grid-template-columns: 50px minmax(0, 1fr) 80px; }
+      .edit-row .desc { grid-column: 1 / -1; }
+      .hero { padding: 28px 14px 24px; }
+      .page { padding: 16px; }
     }
 
-    /* Track Tiles Styling */
-    .tile-pulse {
-      animation: tile-glow 2s infinite ease-in-out;
-    }
-    @keyframes tile-glow {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.6);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #8b5cf6;
-      border-radius: 4px;
-    }
-
-    .avatar-token {
-      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
-<body class="p-2 sm:p-4 flex flex-col items-center justify-center">
+<body>
+  <canvas id="fx" aria-hidden="true"></canvas>
+  <div class="toasts" id="toasts" aria-live="polite"></div>
 
-  <!-- Header & Audio Controls -->
-  <header class="w-full max-w-6xl flex justify-between items-center py-2 px-4 mb-2 glass-card rounded-2xl">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-amber-400 flex items-center justify-center text-2xl shadow-lg">
-        📐
-      </div>
-      <div>
-        <h1 class="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300">
-          A Corrida dos Decimais e Frações
-        </h1>
-        <p class="text-xs text-slate-300 hidden sm:block">Matemática Divertida - 6º Ano (BNCC)</p>
-      </div>
-    </div>
-
-    <div class="flex items-center gap-2">
-      <button id="btn-sound" onclick="toggleSound()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-sm flex items-center gap-2 transition">
-        <i id="sound-icon" class="fa-solid fa-volume-high text-pink-400"></i>
-        <span class="hidden sm:inline">Som</span>
+  <div class="app">
+    <!-- HEADER -->
+    <header class="panel topbar">
+      <button type="button" class="brand" onclick="goHome()" aria-label="Voltar ao início">
+        <span class="crest" aria-hidden="true">🛡️</span>
+        <span>
+          <span class="brand-title">A Jornada dos Números</span><br>
+          <span class="brand-sub">Corrida dos Decimais e Frações · 6º ano</span>
+        </span>
       </button>
-      <button onclick="showInstructions()" class="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold shadow-md transition flex items-center gap-2">
-        <i class="fa-solid fa-circle-question"></i>
-        <span class="hidden sm:inline">Regras</span>
-      </button>
-    </div>
-  </header>
-
-  <!-- MAIN CONTAINER -->
-  <main class="w-full max-w-6xl">
-
-    <!-- SETUP SCREEN -->
-    <section id="screen-setup" class="glass-card rounded-3xl p-6 sm:p-10 my-4 text-center">
-      <div class="inline-block px-4 py-1 rounded-full bg-pink-500/20 border border-pink-500/40 text-pink-300 font-bold text-sm mb-4">
-        ✨ 6º Ano do Ensino Fundamental
+      <div class="top-actions">
+        <button type="button" id="btn-sound" class="btn btn-sm" aria-pressed="true" onclick="toggleSound()" title="Ligar/desligar som">
+          <span id="sound-icon" aria-hidden="true">🔊</span><span class="hide-sm">Som</span>
+        </button>
+        <button type="button" class="btn btn-sm" onclick="openModal('modal-rules')">
+          <span aria-hidden="true">📜</span><span class="hide-sm">Regras</span>
+        </button>
       </div>
-      <h2 class="text-3xl sm:text-5xl font-extrabold mb-4 text-white">Pronto para Desafiar a Matemática?</h2>
-      <p class="text-slate-300 max-w-2xl mx-auto mb-8 text-sm sm:text-base">
-        Avance pelo tabuleiro respondendo a desafios com números decimais e frações. Use a lógica, vença os desafios e alcance a linha de chegada em primeiro lugar!
-      </p>
+    </header>
 
-      <!-- Mode Selector -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8">
-        <div id="mode-card-single" onclick="selectGameMode('single')" class="cursor-pointer p-6 rounded-2xl border-2 border-pink-500 bg-pink-500/10 hover:bg-pink-500/20 transition text-left relative overflow-hidden group">
-          <div class="absolute -right-4 -bottom-4 text-6xl opacity-20 group-hover:scale-110 transition">🤖</div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-pink-400">Modo Solo</span>
-            <i class="fa-solid fa-circle-check text-pink-400 text-xl" id="mode-single-check"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white mb-1">Jogador vs Robôs Inteligentes</h3>
-          <p class="text-xs text-slate-300">Jogue sozinho contra avatares controlados pelo computador.</p>
-        </div>
-
-        <div id="mode-card-multi" onclick="selectGameMode('multi')" class="cursor-pointer p-6 rounded-2xl border-2 border-slate-700 bg-slate-800/40 hover:bg-slate-800/80 transition text-left relative overflow-hidden group">
-          <div class="absolute -right-4 -bottom-4 text-6xl opacity-20 group-hover:scale-110 transition">👥</div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Multijogador Local</span>
-            <i class="fa-regular fa-circle text-slate-500 text-xl" id="mode-multi-check"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white mb-1">Passe e Jogue em Grupo</h3>
-          <p class="text-xs text-slate-300">Ideal para grupos de 2 a 4 alunos na mesma tela/projetor.</p>
-        </div>
-      </div>
-
-      <!-- Player Count Selection (Visible on Multi) -->
-      <div id="player-count-box" class="hidden mb-8 max-w-md mx-auto">
-        <label class="block text-slate-300 text-sm font-bold mb-3">Número de Jogadores / Equipes:</label>
-        <div class="flex justify-center gap-4">
-          <button onclick="setPlayerCount(2)" class="btn-player-count w-12 h-12 rounded-xl bg-slate-800 border border-slate-600 font-bold text-lg hover:border-pink-500 transition" data-count="2">2</button>
-          <button onclick="setPlayerCount(3)" class="btn-player-count w-12 h-12 rounded-xl bg-slate-800 border border-slate-600 font-bold text-lg hover:border-pink-500 transition" data-count="3">3</button>
-          <button onclick="setPlayerCount(4)" class="btn-player-count w-12 h-12 rounded-xl bg-pink-500 border-2 border-pink-400 font-bold text-lg transition" data-count="4">4</button>
-        </div>
-      </div>
-
-      <!-- Start Button -->
-      <button onclick="startGame()" class="px-10 py-4 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 text-white font-extrabold text-xl shadow-2xl btn-pulse transition transform hover:scale-105">
-        🚀 Começar a Corrida!
-      </button>
-    </section>
-
-    <!-- GAMEPLAY BOARD SCREEN -->
-    <section id="screen-game" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-      <!-- LEFT / TOP PANEL: Track & Players Info -->
-      <div class="lg:col-span-2 flex flex-col gap-4">
-        
-        <!-- Players Turn Bar -->
-        <div class="glass-card rounded-2xl p-4 flex flex-wrap justify-between items-center gap-3" id="players-turn-bar">
-          <!-- Populated by JS -->
-        </div>
-
-        <!-- Board Canvas / Grid -->
-        <div class="glass-card rounded-3xl p-4 relative overflow-hidden flex flex-col justify-center min-h-[380px] bg-slate-900/60 border border-slate-700">
-          <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2 flex justify-between items-center px-2">
-            <span>🏁 Circuito do Reino da Matemática (20 Casas)</span>
-            <span id="game-status-label" class="text-amber-400">Vez de: <strong id="current-player-name" class="text-white">--</strong></span>
-          </div>
-
-          <!-- Interactive Board Container -->
-          <div id="board-grid" class="grid grid-cols-5 sm:grid-cols-5 gap-2 sm:gap-3 p-2 relative">
-            <!-- Tiles generated by JS -->
+    <main>
+      <!-- HOME -->
+      <section id="screen-home" class="screen">
+        <div class="panel ornate hero">
+          <div class="hero-emblems" aria-hidden="true"><span>🧙</span><span>🐉</span><span>💰</span></div>
+          <h1 class="hero-logo">A Jornada<br>dos Números</h1>
+          <p class="hero-sub">A Corrida dos Decimais e Frações</p>
+          <p class="hero-text">Escolha seu herói, atravesse três reinos e derrote os chefões resolvendo desafios de frações e números decimais. Ganhe XP, suba de patente, desbloqueie conquistas e troque seu ouro por <strong style="color:var(--gold-2)">prêmios de verdade</strong>!</p>
+          <button type="button" class="btn btn-gold btn-lg" onclick="showScreen('setup')">⚔️ Iniciar Aventura</button>
+          <div class="menu-grid">
+            <button type="button" class="btn" onclick="openShop()"><span class="ico" aria-hidden="true">🏪</span>Loja de Prêmios</button>
+            <button type="button" class="btn" onclick="openRanking()"><span class="ico" aria-hidden="true">🏆</span>Salão dos Heróis</button>
+            <button type="button" class="btn" onclick="askTeacherPin()"><span class="ico" aria-hidden="true">🗝️</span>Professor</button>
           </div>
         </div>
 
-      </div>
+        <div class="realms">
+          <div class="realm-card realm-1-bg">
+            <span class="eyebrow">Reino 1 · Fácil</span>
+            <h3>🌲 Floresta das Frações</h3>
+            <p>Leitura de decimais, partes de um todo e frações equivalentes. Chefão: Troll da Ponte.</p>
+            <span class="big" aria-hidden="true">🧌</span>
+          </div>
+          <div class="realm-card realm-2-bg">
+            <span class="eyebrow">Reino 2 · Médio</span>
+            <h3>🏔️ Montanhas dos Decimais</h3>
+            <p>Somas e subtrações com vírgula, fração de uma quantidade e comparações. Chefão: Gigante de Pedra.</p>
+            <span class="big" aria-hidden="true">🗿</span>
+          </div>
+          <div class="realm-card realm-3-bg">
+            <span class="eyebrow">Reino 3 · Difícil</span>
+            <h3>🏰 Castelo do Dragão</h3>
+            <p>Multiplicação, divisão e problemas com frações e decimais. Chefão final: Dragão Ancião.</p>
+            <span class="big" aria-hidden="true">🐉</span>
+          </div>
+        </div>
 
-      <!-- RIGHT PANEL: Controls & Dice Roller -->
-      <div class="flex flex-col gap-4">
+        <p class="footer">BNCC EF06MA07 a EF06MA11 · Desenvolvido por Ewerton Conceição Grigorio</p>
+      </section>
 
-        <!-- Turn Controls / Roll Dice Box -->
-        <div class="glass-card rounded-3xl p-6 flex flex-col items-center justify-center text-center text-white relative">
-          <div class="text-xs uppercase font-bold text-pink-400 mb-2">Painel de Ação</div>
-          <h3 id="panel-turn-title" class="text-xl font-bold mb-4">Sua Vez de Jogar!</h3>
+      <!-- SETUP -->
+      <section id="screen-setup" class="screen" hidden>
+        <div class="panel ornate page">
+          <div class="page-head">
+            <div>
+              <span class="eyebrow">Preparar a aventura</span>
+              <h2>Monte seu grupo de heróis</h2>
+            </div>
+            <button type="button" class="btn btn-ghost" onclick="goHome()">← Voltar</button>
+          </div>
 
-          <!-- Dice Visual -->
-          <div class="w-24 h-24 my-2 relative flex items-center justify-center">
-            <div id="dice-element" class="dice w-20 h-20 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-2xl shadow-2xl border-2 border-white/40 flex items-center justify-center text-4xl text-white font-black cursor-pointer hover:scale-105 transition">
-              <span id="dice-value">🎲</span>
+          <div class="mode-grid">
+            <button type="button" class="mode-card" id="mode-solo" aria-pressed="true" onclick="setMode('solo')">
+              <span class="eyebrow">Herói solo</span>
+              <h3>Você contra os rivais</h3>
+              <p class="muted small">Ideal no celular ou computador. Dispute com o Goblin e o Lobo Sombrio, controlados pelo computador.</p>
+              <span class="big" aria-hidden="true">🧙</span>
+            </button>
+            <button type="button" class="mode-card" id="mode-team" aria-pressed="false" onclick="setMode('team')">
+              <span class="eyebrow">Equipes</span>
+              <h3>Passe e jogue no projetor</h3>
+              <p class="muted small">De 2 a 4 alunos ou equipes revezando na mesma tela.</p>
+              <span class="big" aria-hidden="true">🛡️</span>
+            </button>
+          </div>
+
+          <div id="count-box" class="row" style="margin-top:16px" hidden>
+            <span class="muted small" style="font-weight:800">Quantas equipes?</span>
+            <div class="count-row">
+              <button type="button" class="btn count-btn" data-count="2" aria-pressed="false" onclick="setCount(2)">2</button>
+              <button type="button" class="btn count-btn" data-count="3" aria-pressed="false" onclick="setCount(3)">3</button>
+              <button type="button" class="btn count-btn" data-count="4" aria-pressed="true" onclick="setCount(4)">4</button>
             </div>
           </div>
 
-          <p class="text-xs text-slate-300 mt-2 mb-4" id="action-hint">Role o dado para avançar no circuito.</p>
+          <div class="divider"></div>
+          <p class="muted small" style="margin-bottom:10px">Use sempre o <strong>mesmo nome</strong> para acumular XP, ouro e conquistas no seu perfil.</p>
+          <div id="slots" class="slots"></div>
+          <datalist id="profile-names"></datalist>
 
-          <button id="btn-roll-dice" onclick="rollDice()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-extrabold text-lg shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
-            <i class="fa-solid fa-dice"></i> Rolar o Dado!
-          </button>
-        </div>
-
-        <!-- Leaderboard Snapshot -->
-        <div class="glass-card rounded-3xl p-5 flex flex-col gap-3">
-          <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-            <i class="fa-solid fa-trophy text-amber-400"></i> Placar Parcial
-          </h4>
-          <div id="mini-leaderboard" class="flex flex-col gap-2">
-            <!-- Populated dynamically -->
+          <div class="form-error" id="setup-error" role="alert"></div>
+          <div class="row" style="justify-content:center;margin-top:8px">
+            <button type="button" class="btn btn-gold btn-lg" onclick="startGame()">⚔️ Partir para a Floresta!</button>
           </div>
         </div>
+      </section>
 
-      </div>
-    </section>
+      <!-- GAME -->
+      <section id="screen-game" class="screen" hidden>
+        <div class="game">
+          <div class="game-main">
+            <div class="panel realm-strip" id="realm-strip"></div>
 
-  </main>
+            <div class="panel board-wrap realm-1" id="board-wrap" data-deco="🌲">
+              <div class="board-head">
+                <div>
+                  <span class="eyebrow" id="board-eyebrow">Reino 1 de 3</span>
+                  <h3 id="board-title">Floresta das Frações</h3>
+                </div>
+                <span class="chip gold" id="board-level">Perguntas: Fácil</span>
+              </div>
+              <div class="board" id="board" aria-label="Trilha do reino"></div>
+              <div class="legend">
+                <span class="chip">💰 Baú: ouro</span>
+                <span class="chip purple">🌀 Portal: +2 casas</span>
+                <span class="chip red">🕸️ Armadilha: −2 casas</span>
+                <span class="chip">🍺 Taverna: +XP e cura</span>
+                <span class="chip red">☠️ Chefão</span>
+              </div>
+            </div>
+          </div>
 
-  <!-- MODAL: MATH QUESTION CHALLENGE -->
-  <div id="modal-question" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-card-light rounded-3xl max-w-xl w-full p-6 sm:p-8 relative shadow-2xl border-4 border-purple-500 animate-bounce-short">
-      
-      <!-- Top Challenge Header -->
-      <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-200">
-        <div class="flex items-center gap-2">
-          <span id="question-avatar" class="text-3xl">🦊</span>
-          <div>
-            <span class="text-xs font-extrabold text-purple-600 uppercase tracking-wider" id="question-player-label">Desafio do Jogador</span>
-            <h4 class="text-lg font-bold text-slate-800" id="question-category">Decimais vs Frações</h4>
+          <aside class="game-side">
+            <div class="panel ornate action">
+              <span class="eyebrow">Turno</span>
+              <div class="turn-name" id="turn-name">—</div>
+              <div class="dice-box">
+                <div class="dice" id="dice" aria-hidden="true"></div>
+              </div>
+              <p class="hint" id="hint" aria-live="polite">Role o dado para avançar.</p>
+              <button type="button" class="btn btn-gold btn-lg" id="btn-roll" onclick="rollDice()">🎲 Rolar o Dado</button>
+              <button type="button" class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="quitGame()">Sair da partida</button>
+            </div>
+
+            <div class="panel heroes" id="heroes"></div>
+
+            <div class="panel log">
+              <span class="eyebrow">Diário da aventura</span>
+              <ol id="log"></ol>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- SHOP -->
+      <section id="screen-shop" class="screen" hidden>
+        <div class="panel ornate page">
+          <div class="page-head">
+            <div>
+              <span class="eyebrow">Loja do Mercador</span>
+              <h2>🏪 Troque seu ouro por prêmios</h2>
+            </div>
+            <button type="button" class="btn btn-ghost" onclick="goHome()">← Voltar</button>
+          </div>
+
+          <div class="row between" style="margin-bottom:14px">
+            <div class="row">
+              <label for="shop-profile" class="muted small" style="font-weight:800">Herói:</label>
+              <select id="shop-profile" class="field" style="width:auto;min-width:200px" onchange="renderShop()"></select>
+            </div>
+            <span class="wallet" id="shop-wallet">💰 0</span>
+          </div>
+
+          <div id="shop-empty" class="muted center" hidden style="padding:30px 0">Nenhum herói ainda. Jogue uma partida para criar seu perfil e ganhar ouro!</div>
+          <div class="shop-grid" id="shop-grid"></div>
+
+          <div class="divider"></div>
+          <h3 style="font-size:1rem;margin-bottom:10px">🎟️ Meus cupons</h3>
+          <p class="muted small" style="margin-bottom:10px">Mostre o código ao professor para receber o prêmio.</p>
+          <div class="table-wrap"><table id="my-coupons"></table></div>
+        </div>
+      </section>
+
+      <!-- RANKING -->
+      <section id="screen-ranking" class="screen" hidden>
+        <div class="panel ornate page">
+          <div class="page-head">
+            <div>
+              <span class="eyebrow">Salão dos Heróis</span>
+              <h2>🏆 Ranking da turma</h2>
+            </div>
+            <button type="button" class="btn btn-ghost" onclick="goHome()">← Voltar</button>
+          </div>
+          <div class="table-wrap"><table id="ranking-table"></table></div>
+          <div class="divider"></div>
+          <div class="row between" style="margin-bottom:10px">
+            <h3 style="font-size:1rem">🎖️ Conquistas</h3>
+            <select id="ach-profile" class="field" style="width:auto;min-width:200px" onchange="renderAchievements()" aria-label="Escolher herói"></select>
+          </div>
+          <div class="ach-grid" id="ach-grid"></div>
+        </div>
+      </section>
+
+      <!-- TEACHER -->
+      <section id="screen-teacher" class="screen" hidden>
+        <div class="panel ornate page">
+          <div class="page-head">
+            <div>
+              <span class="eyebrow">Área restrita</span>
+              <h2>🗝️ Painel do Professor</h2>
+            </div>
+            <button type="button" class="btn btn-ghost" onclick="teacherLogout()">🔒 Sair do painel</button>
+          </div>
+          <div class="tabs" role="tablist">
+            <button type="button" class="tab" role="tab" data-tab="coupons" aria-selected="true" onclick="teacherTab('coupons')">🎟️ Cupons</button>
+            <button type="button" class="tab" role="tab" data-tab="shop" aria-selected="false" onclick="teacherTab('shop')">🏪 Prêmios</button>
+            <button type="button" class="tab" role="tab" data-tab="students" aria-selected="false" onclick="teacherTab('students')">🧑‍🎓 Alunos</button>
+            <button type="button" class="tab" role="tab" data-tab="settings" aria-selected="false" onclick="teacherTab('settings')">⚙️ Ajustes</button>
+          </div>
+          <div id="teacher-body"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL: QUESTION -->
+  <div class="modal" id="modal-question" hidden>
+    <div class="scroll" id="q-card" role="dialog" aria-modal="true" aria-labelledby="q-text">
+      <div class="boss-banner"><span class="boss-face" id="boss-face">🐉</span><span id="boss-name">BATALHA CONTRA O CHEFÃO</span></div>
+      <div class="q-head">
+        <div class="q-who">
+          <span class="ava" id="q-ava">🧙</span>
+          <div style="min-width:0">
+            <div class="q-label" id="q-player">Desafio de —</div>
+            <div class="row" style="gap:6px">
+              <span class="lvl lvl-1" id="q-level">Fácil</span>
+              <span class="q-cat" id="q-cat">Frações</span>
+            </div>
           </div>
         </div>
-        <!-- Live Timer Badge -->
-        <div class="flex items-center gap-2 bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-full text-amber-900 font-extrabold text-sm">
-          <i class="fa-solid fa-stopwatch text-amber-600"></i>
-          <span id="timer-text">45s</span>
-        </div>
+        <div class="timer" id="q-timer" aria-live="off">45s</div>
       </div>
-
-      <!-- Question Text -->
-      <div class="my-4">
-        <p class="text-xs font-bold text-purple-700 uppercase mb-1" id="question-context">Responda corretamente para avançar:</p>
-        <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug" id="question-title">
-          Qual número decimal representa a fração 3/4?
-        </h3>
+      <div class="timebar"><span id="q-timebar"></span></div>
+      <p class="q-reward" id="q-reward">Acertou? Avance 3 casas.</p>
+      <h3 class="q-text" id="q-text">—</h3>
+      <div class="choices" id="q-choices"></div>
+      <div id="q-feedback" class="feedback" role="status" aria-live="polite" hidden>
+        <h4 id="q-fb-title"></h4>
+        <p id="q-fb-text"></p>
+        <div class="rewards" id="q-fb-rewards"></div>
       </div>
-
-      <!-- Multiple Choice Options -->
-      <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 my-6">
-        <!-- Populated by JS -->
+      <div class="q-actions">
+        <button type="button" class="btn btn-gold" id="btn-continue" onclick="continueTurn()" hidden>Continuar ➔</button>
       </div>
-
-      <!-- Feedback / Explanation Panel (Initially Hidden) -->
-      <div id="feedback-panel" class="hidden p-4 rounded-2xl mb-4 text-sm font-semibold transition">
-        <div id="feedback-title" class="font-extrabold text-base mb-1"></div>
-        <div id="feedback-text" class="text-slate-700 leading-relaxed"></div>
-      </div>
-
-      <!-- Continue Action Button (Visible after answering) -->
-      <div class="flex justify-end">
-        <button id="btn-next-turn" onclick="closeQuestionModal()" class="hidden px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-lg transition">
-          Continuar Corrida ➔
-        </button>
-      </div>
-
     </div>
   </div>
 
-  <!-- MODAL: VICTORY CELEBRATION -->
-  <div id="modal-victory" class="fixed inset-0 bg-slate-950/90 backdrop-blur-lg z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-card rounded-3xl max-w-lg w-full p-8 text-center border-4 border-amber-400 relative overflow-hidden">
-      <div class="text-6xl mb-2 animate-bounce">🏆</div>
-      <h2 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 mb-1">
-        Temos um Campeão!
-      </h2>
-      <p class="text-slate-300 text-sm mb-6">A Corrida dos Decimais e Frações foi concluída com sucesso!</p>
-
-      <!-- Winner Badge -->
-      <div class="bg-white/10 rounded-2xl p-4 border border-white/20 mb-6 flex items-center justify-center gap-4">
-        <span id="winner-avatar" class="text-5xl">🦊</span>
-        <div class="text-left">
-          <h3 id="winner-name" class="text-2xl font-extrabold text-white">Raposa Matemática</h3>
-          <p class="text-xs text-amber-300 font-bold" id="winner-score">Chegou à Casa 20!</p>
-        </div>
+  <!-- MODAL: VICTORY -->
+  <div class="modal" id="modal-victory" hidden>
+    <div class="panel ornate modal-card" role="dialog" aria-modal="true" aria-labelledby="victory-title">
+      <div class="trophy" aria-hidden="true">🏆</div>
+      <h2 id="victory-title" class="center" style="color:var(--gold-2);font-size:1.7rem">—</h2>
+      <p class="center muted small" id="victory-sub">Os três reinos foram conquistados!</p>
+      <div class="podium" id="podium"></div>
+      <div class="row" style="justify-content:center">
+        <button type="button" class="btn btn-gold" onclick="closeModal('modal-victory'); showScreen('setup')">⚔️ Nova aventura</button>
+        <button type="button" class="btn" onclick="closeModal('modal-victory'); openShop()">🏪 Ir à loja</button>
       </div>
-
-      <!-- Performance Stats -->
-      <div class="grid grid-cols-2 gap-3 mb-6 text-left text-xs">
-        <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
-          <span class="text-slate-400 block">Precisão Geral</span>
-          <strong id="stat-accuracy" class="text-green-400 text-base font-bold">100% de acertos</strong>
-        </div>
-        <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
-          <span class="text-slate-400 block">Tempo Médio</span>
-          <strong id="stat-time" class="text-indigo-300 text-base font-bold">12 seg/questão</strong>
-        </div>
-      </div>
-
-      <button onclick="resetToSetup()" class="w-full py-4 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-extrabold text-lg shadow-xl transition transform hover:scale-105">
-        🔄 Jogar Novamente
-      </button>
     </div>
   </div>
 
-  <!-- MODAL: INSTRUCTIONS -->
-  <div id="modal-instructions" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <div class="glass-card-light rounded-3xl max-w-md w-full p-6 text-slate-800 relative">
-      <div class="flex justify-between items-center mb-4 pb-2 border-b">
-        <h3 class="text-xl font-bold text-purple-900 flex items-center gap-2">
-          📖 Regras do Jogo
-        </h3>
-        <button onclick="hideInstructions()" class="text-slate-400 hover:text-slate-700 text-xl font-bold">&times;</button>
-      </div>
-
-      <ul class="space-y-3 text-sm text-slate-700">
-        <li class="flex gap-2">
-          <span class="text-purple-600 font-bold">1.</span>
-          <span>Role o dado na sua vez para saber quantas casas seu personagem tentarão avançar.</span>
-        </li>
-        <li class="flex gap-2">
-          <span class="text-purple-600 font-bold">2.</span>
-          <span>Responda ao **Desafio Matemático (BNCC 6º Ano)**. Se acertar, você avança o valor do dado! Se errar, permanece na mesma casa.</span>
-        </li>
-        <li class="flex gap-2">
-          <span class="text-purple-600 font-bold">3.</span>
-          <span>**Casas Especiais:**
-            <br>• 🚀 <strong>Pulo Duplo:</strong> Avança +2 casas extras.
-            <br>• 🐊 <strong>Pântano:</strong> Recua -2 casas.
-            <br>• 🌀 <strong>Portal:</strong> Troca de lugar com a casa sorteada.
-          </span>
-        </li>
-        <li class="flex gap-2">
-          <span class="text-purple-600 font-bold">4.</span>
-          <span>O primeiro jogador a atingir a **Casa 20** vence a corrida!</span>
-        </li>
-      </ul>
-
-      <button onclick="hideInstructions()" class="w-full mt-6 py-3 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 transition">
-        Entendi, Vamos Jogar!
-      </button>
+  <!-- MODAL: RULES -->
+  <div class="modal" id="modal-rules" hidden>
+    <div class="panel ornate modal-card" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+      <button type="button" class="btn btn-ghost btn-sm modal-close" aria-label="Fechar" onclick="closeModal('modal-rules')">✕</button>
+      <h3 id="rules-title" style="color:var(--gold-2);margin-bottom:12px">📜 Como jogar</h3>
+      <ol class="rules">
+        <li><strong>Role o dado</strong> e responda ao desafio. Acertou? Avance as casas do dado. Errou ou o tempo acabou? Fique onde está e perca 1 ❤️.</li>
+        <li>Sem corações você <strong>desmaia</strong>: perde a próxima vez e volta com os corações cheios.</li>
+        <li><strong>Casas especiais:</strong> 💰 Baú (ouro), 🌀 Portal (+2 casas), 🕸️ Armadilha (−2 casas), 🍺 Taverna (+XP e cura).</li>
+        <li>Na casa 20 está o <strong>☠️ Chefão</strong>. Vença a batalha para conquistar o reino. Se perder, você recua para a casa 17.</li>
+        <li>Conquiste os <strong>3 reinos</strong> para vencer a partida.</li>
+        <li><strong>XP:</strong> mais pontos em perguntas difíceis e respostas rápidas. Acertos seguidos formam <strong>combo</strong> 🔥 (×1,5 e ×2).</li>
+        <li><strong>Ouro 💰:</strong> troque na Loja do Mercador por prêmios reais. Mostre o cupom ao professor.</li>
+        <li>Atalhos: teclas <strong>1–4</strong> ou <strong>A–D</strong> escolhem a resposta.</li>
+      </ol>
+      <button type="button" class="btn btn-gold" style="width:100%;margin-top:14px" onclick="closeModal('modal-rules')">Entendi, vamos jogar!</button>
     </div>
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
+  <!-- MODAL: GENERIC DIALOG -->
+  <div class="modal" id="modal-dialog" hidden>
+    <div class="panel ornate modal-card" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+      <h3 id="dialog-title" style="color:var(--gold-2);margin-bottom:10px">—</h3>
+      <div id="dialog-body"></div>
+      <div class="row" style="justify-content:flex-end;margin-top:16px" id="dialog-actions"></div>
+    </div>
+  </div>
+
   <script>
+    'use strict';
+
     /* ==========================================================================
-       AUDIO SYNTHESIZER (Web Audio API)
+       HELPERS
+       ========================================================================== */
+    const $ = sel => document.querySelector(sel);
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+    const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+    const REDUCED_MOTION = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function esc(value) {
+      return String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    // Formats a number in pt-BR with a fixed number of decimal places (2.5 -> "2,50" for places = 2)
+    function dec(n, places) {
+      return n.toFixed(places).replace('.', ',');
+    }
+
+    function hashText(text) {
+      let h = 0x811c9dc5;
+      for (let i = 0; i < text.length; i++) {
+        h ^= text.charCodeAt(i);
+        h = Math.imul(h, 0x01000193) >>> 0;
+      }
+      return h.toString(16);
+    }
+
+    function fmtDate(ts) {
+      return new Date(ts).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    }
+
+    /* ==========================================================================
+       AUDIO (Web Audio API)
        ========================================================================== */
     let audioCtx = null;
-    let soundEnabled = true;
+    let soundOn = true;
 
-    function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function tone(freq, start, duration, type = 'sine', volume = 0.18) {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(start);
+      osc.stop(start + duration + 0.02);
+    }
+
+    function playSound(name) {
+      if (!soundOn) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+      } catch (e) {
+        return;
+      }
+      const t = audioCtx.currentTime;
+      const seq = (notes, step, type, vol) => notes.forEach((f, i) => tone(f, t + i * step, step * 1.6, type, vol));
+      switch (name) {
+        case 'click': tone(660, t, 0.06, 'triangle', 0.08); break;
+        case 'dice': for (let i = 0; i < 6; i++) tone(rand(250, 500), t + i * 0.07, 0.05, 'square', 0.05); break;
+        case 'step': tone(520, t, 0.08, 'triangle', 0.1); break;
+        case 'correct': seq([523, 659, 784, 1047], 0.08, 'triangle', 0.16); break;
+        case 'wrong': tone(220, t, 0.25, 'sawtooth', 0.08); tone(165, t + 0.15, 0.35, 'sawtooth', 0.08); break;
+        case 'coin': tone(988, t, 0.08, 'square', 0.07); tone(1319, t + 0.08, 0.2, 'square', 0.07); break;
+        case 'portal': seq([392, 523, 659, 784, 1047, 1319], 0.05, 'sine', 0.1); break;
+        case 'trap': seq([400, 300, 200], 0.09, 'sawtooth', 0.07); break;
+        case 'boss': tone(110, t, 0.9, 'sawtooth', 0.12); tone(82, t + 0.2, 1.0, 'square', 0.08); break;
+        case 'levelup': seq([523, 659, 784, 1047, 784, 1047, 1319], 0.09, 'triangle', 0.15); break;
+        case 'victory': seq([392, 392, 392, 523, 659, 784, 659, 784, 1047], 0.13, 'triangle', 0.17); break;
+        case 'achievement': seq([784, 988, 1175, 1568], 0.07, 'sine', 0.14); break;
       }
     }
 
     function toggleSound() {
-      soundEnabled = !soundEnabled;
-      const icon = document.getElementById('sound-icon');
-      if (soundEnabled) {
-        icon.className = 'fa-solid fa-volume-high text-pink-400';
-      } else {
-        icon.className = 'fa-solid fa-volume-xmark text-slate-500';
-      }
-    }
-
-    function playSound(type) {
-      if (!soundEnabled) return;
-      initAudio();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      const now = audioCtx.currentTime;
-
-      if (type === 'dice') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(200, now);
-        osc.frequency.exponentialRampToValueAtTime(600, now + 0.15);
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
-        osc.start(now);
-        osc.stop(now + 0.15);
-      } else if (type === 'correct') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, now); // C5
-        osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-        osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
-        osc.start(now);
-        osc.stop(now + 0.35);
-      } else if (type === 'wrong') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(180, now);
-        osc.frequency.linearRampToValueAtTime(110, now + 0.3);
-        gain.gain.setValueAtTime(0.3, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-        osc.start(now);
-        osc.stop(now + 0.3);
-      } else if (type === 'victory') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(440, now);
-        osc.frequency.setValueAtTime(554.37, now + 0.15);
-        osc.frequency.setValueAtTime(659.25, now + 0.3);
-        osc.frequency.setValueAtTime(880, now + 0.45);
-        gain.gain.setValueAtTime(0.4, now);
-        gain.gain.linearRampToValueAtTime(0.01, now + 0.7);
-        osc.start(now);
-        osc.stop(now + 0.7);
-      }
+      soundOn = !soundOn;
+      $('#btn-sound').setAttribute('aria-pressed', String(soundOn));
+      $('#sound-icon').textContent = soundOn ? '🔊' : '🔇';
+      if (soundOn) playSound('click');
     }
 
     /* ==========================================================================
-       AVATARS & GAME CONFIG
+       PERSISTENCE (localStorage)
        ========================================================================== */
-    const ALL_AVATARS = [
-      { id: 'fox', name: 'Raposa Matemática', emoji: '🦊', color: 'from-orange-500 to-amber-500', isBot: false },
-      { id: 'owl', name: 'Coruja Digital', emoji: '🦉', color: 'from-purple-500 to-indigo-500', isBot: false },
-      { id: 'robot', name: 'Robô dos Cálculos', emoji: '🤖', color: 'from-cyan-500 to-blue-500', isBot: false },
-      { id: 'bear', name: 'Urso Cientista', emoji: '🐻', color: 'from-emerald-500 to-teal-500', isBot: false }
+    const STORE_KEY = 'jornada-dos-numeros-v1';
+    const HERO_AVATARS = ['🧙', '🧝', '🤺', '🥷', '🧚', '🦉', '🐲', '🦸'];
+    const DEFAULT_PIN = '1234';
+
+    const DEFAULT_SHOP = [
+      { id: 'bala', icon: '🍬', name: 'Bala ou doce', desc: 'Um docinho entregue pelo professor.', price: 60, active: true },
+      { id: 'adesivo', icon: '⭐', name: 'Adesivo de estrela', desc: 'Um adesivo para o caderno.', price: 90, active: true },
+      { id: 'lugar', icon: '🪑', name: 'Escolher o lugar', desc: 'Sente onde quiser durante uma aula.', price: 150, active: true },
+      { id: 'musica', icon: '🎵', name: 'DJ da aula', desc: 'Escolha a música do momento de atividade.', price: 180, active: true },
+      { id: 'ajudante', icon: '👑', name: 'Ajudante do dia', desc: 'Seja o braço direito do professor por uma aula.', price: 250, active: true },
+      { id: 'dica', icon: '📝', name: 'Dica na prova', desc: 'Uma dica em uma questão da próxima avaliação.', price: 400, active: true },
+      { id: 'ponto', icon: '➕', name: '+0,5 ponto', desc: 'Meio ponto extra na média do bimestre.', price: 600, active: true }
     ];
 
-    const TOTAL_TILES = 20;
+    function emptyDb() {
+      return {
+        profiles: Object.create(null),
+        shop: DEFAULT_SHOP.map(item => ({ ...item })),
+        coupons: [],
+        pinHash: hashText(DEFAULT_PIN),
+        settings: { timer: 45, goldMultiplier: 1 }
+      };
+    }
 
-    // Special tiles map (1-indexed)
-    const SPECIAL_TILES = {
-      4: { type: 'boost', label: '🚀 +2 Casas', description: 'Atalho Matemático! Avançou 2 casas extras.' },
-      8: { type: 'swamp', label: '🐊 -2 Casas', description: 'Pântano dos Decimais! Recuou 2 casas.' },
-      12: { type: 'boost', label: '🚀 +2 Casas', description: 'Impulso da Fração! Avançou 2 casas.' },
-      16: { type: 'swamp', label: '🐊 -2 Casas', description: 'Distração! Volte 2 casas.' }
-    };
+    function num(value, fallback = 0) {
+      if (value === '' || value === null || value === undefined) return fallback;
+      const n = Number(value);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function normalizeProfile(p) {
+      return {
+        id: String(p.id || ''),
+        name: String(p.name || 'Herói').slice(0, 24),
+        avatar: HERO_AVATARS.includes(p.avatar) ? p.avatar : '🧙',
+        xp: Math.max(0, num(p.xp)),
+        gold: Math.max(0, num(p.gold)),
+        goldEarned: Math.max(0, num(p.goldEarned)),
+        answered: Math.max(0, num(p.answered)),
+        correct: Math.max(0, num(p.correct)),
+        fracCorrect: Math.max(0, num(p.fracCorrect)),
+        decCorrect: Math.max(0, num(p.decCorrect)),
+        bestCombo: Math.max(0, num(p.bestCombo)),
+        bosses: Math.max(0, num(p.bosses)),
+        wins: Math.max(0, num(p.wins)),
+        games: Math.max(0, num(p.games)),
+        achievements: Object.assign(Object.create(null), p.achievements && typeof p.achievements === 'object' ? p.achievements : {}),
+        lastPlayed: num(p.lastPlayed, Date.now())
+      };
+    }
+
+    function normalizeDb(raw) {
+      const base = emptyDb();
+      if (!raw || typeof raw !== 'object') return base;
+      const profiles = Object.create(null);
+      if (raw.profiles && typeof raw.profiles === 'object') {
+        for (const [id, p] of Object.entries(raw.profiles)) {
+          if (p && typeof p === 'object') profiles[id] = normalizeProfile({ ...p, id });
+        }
+      }
+      const shop = Array.isArray(raw.shop)
+        ? raw.shop.filter(i => i && typeof i === 'object').map(i => ({
+            id: String(i.id || ('p' + Math.random().toString(36).slice(2, 8))),
+            icon: String(i.icon || '🎁').slice(0, 4),
+            name: String(i.name || 'Prêmio').slice(0, 40),
+            desc: String(i.desc || '').slice(0, 120),
+            price: clamp(Math.round(num(i.price, 50)), 1, 99999),
+            active: i.active !== false
+          }))
+        : base.shop;
+      const coupons = Array.isArray(raw.coupons)
+        ? raw.coupons.filter(c => c && typeof c === 'object' && c.code).map(c => ({
+            code: String(c.code).slice(0, 16),
+            profileId: String(c.profileId || ''),
+            profileName: String(c.profileName || '').slice(0, 24),
+            itemName: String(c.itemName || '').slice(0, 40),
+            itemIcon: String(c.itemIcon || '🎁').slice(0, 4),
+            price: Math.max(0, num(c.price)),
+            createdAt: num(c.createdAt, Date.now()),
+            delivered: Boolean(c.delivered),
+            deliveredAt: c.deliveredAt ? num(c.deliveredAt) : null
+          }))
+        : [];
+      const settings = raw.settings && typeof raw.settings === 'object' ? raw.settings : {};
+      return {
+        profiles,
+        shop,
+        coupons,
+        pinHash: typeof raw.pinHash === 'string' && raw.pinHash ? raw.pinHash : base.pinHash,
+        settings: {
+          timer: clamp(Math.round(num(settings.timer, 45)), 15, 120),
+          goldMultiplier: clamp(num(settings.goldMultiplier, 1), 0.5, 3)
+        }
+      };
+    }
+
+    function loadDb() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (raw) return normalizeDb(JSON.parse(raw));
+      } catch (e) {
+        console.warn('Não foi possível ler os dados salvos.', e);
+      }
+      return emptyDb();
+    }
+
+    let db = loadDb();
+    let saveWarned = false;
+
+    function saveDb() {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(db));
+      } catch (e) {
+        if (!saveWarned) {
+          saveWarned = true;
+          toast('⚠️', 'Progresso não salvo', 'Este navegador bloqueou o salvamento (modo anônimo?).');
+        }
+      }
+    }
+
+    function profileKey(name) {
+      return name.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ');
+    }
+
+    function getOrCreateProfile(name, avatar) {
+      const id = profileKey(name);
+      if (!db.profiles[id]) {
+        db.profiles[id] = normalizeProfile({ id, name: name.trim(), avatar });
+      }
+      db.profiles[id].avatar = avatar;
+      db.profiles[id].name = name.trim().slice(0, 24);
+      return db.profiles[id];
+    }
 
     /* ==========================================================================
-       BNCC 6TH GRADE MATH QUESTION BANK
+       PROGRESSION: LEVELS, RANKS, ACHIEVEMENTS
+       ========================================================================== */
+    // Level L needs 50 * (L-1)^2 XP in total.
+    const levelFromXp = xp => Math.floor(Math.sqrt(xp / 50)) + 1;
+    const xpForLevel = level => 50 * (level - 1) * (level - 1);
+
+    const RANKS = [
+      { min: 1, name: 'Aprendiz', icon: '🪵' },
+      { min: 3, name: 'Escudeiro', icon: '🛡️' },
+      { min: 5, name: 'Cavaleiro', icon: '⚔️' },
+      { min: 8, name: 'Mestre', icon: '🔮' },
+      { min: 12, name: 'Lenda', icon: '👑' }
+    ];
+    const rankFor = level => [...RANKS].reverse().find(r => level >= r.min);
+
+    const ACHIEVEMENTS = [
+      { id: 'first', icon: '✨', name: 'Primeiro Passo', desc: 'Acerte sua primeira pergunta.', test: p => p.correct >= 1 },
+      { id: 'combo3', icon: '🔥', name: 'Em Chamas', desc: 'Faça um combo de 3 acertos.', test: p => p.bestCombo >= 3 },
+      { id: 'combo5', icon: '☄️', name: 'Sequência Lendária', desc: 'Faça um combo de 5 acertos.', test: p => p.bestCombo >= 5 },
+      { id: 'combo10', icon: '🌋', name: 'Imparável', desc: 'Faça um combo de 10 acertos.', test: p => p.bestCombo >= 10 },
+      { id: 'boss', icon: '⚔️', name: 'Caçador de Chefões', desc: 'Derrote um chefão.', test: p => p.bosses >= 1 },
+      { id: 'dragon', icon: '🐉', name: 'Matador de Dragões', desc: 'Derrote o Dragão Ancião.', test: (p, e) => e.dragon },
+      { id: 'win', icon: '🏆', name: 'Campeão dos Reinos', desc: 'Vença uma partida.', test: p => p.wins >= 1 },
+      { id: 'flash', icon: '⚡', name: 'Relâmpago', desc: 'Acerte em menos de 5 segundos.', test: (p, e) => e.flash },
+      { id: 'perfect', icon: '💎', name: 'Reino Perfeito', desc: 'Conquiste um reino sem errar nenhuma vez.', test: (p, e) => e.perfect },
+      { id: 'frac', icon: '🍕', name: 'Mestre das Frações', desc: 'Acerte 25 perguntas de frações.', test: p => p.fracCorrect >= 25 },
+      { id: 'dec', icon: '🔢', name: 'Mestre dos Decimais', desc: 'Acerte 25 perguntas de decimais.', test: p => p.decCorrect >= 25 },
+      { id: 'rich', icon: '💰', name: 'Tesouro Real', desc: 'Ganhe 300 moedas de ouro no total.', test: p => p.goldEarned >= 300 },
+      { id: 'sage', icon: '🦉', name: 'Sábio do Reino', desc: 'Acerte 100 perguntas.', test: p => p.correct >= 100 }
+    ];
+    const ACHIEVEMENT_GOLD = 10;
+
+    /* ==========================================================================
+       QUESTIONS: FIXED BANK + GENERATORS
+       Each question: { level, tag ('frac'|'dec'), category, question, answer, wrong[], explanation }
        ========================================================================== */
     const QUESTION_BANK = [
-      {
-        category: "Frações & Decimais",
-        question: "Qual número decimal representa a fração 3/4?",
-        options: ["0,75", "0,34", "0,50", "0,25"],
-        correct: 0,
-        explanation: "Para transformar 3/4 em decimal, dividimos o numerador pelo denominador: 3 ÷ 4 = 0,75."
-      },
-      {
-        category: "Comparação de Decimais",
-        question: "Qual dos números a seguir é o MAIOR?",
-        options: ["0,45", "0,5", "0,09", "0,49"],
-        correct: 1,
-        explanation: "Comparando a primeira casa decimal (décimos): 0,5 equivale a 0,50, que é maior que 0,49 e 0,45."
-      },
-      {
-        category: "Operações com Decimais",
-        question: "Qual é o resultado da soma: 1,5 + 2,75?",
-        options: ["4,25", "3,80", "4,15", "3,25"],
-        correct: 0,
-        explanation: "Alinhando a vírgula: 1,50 + 2,75 = 4,25."
-      },
-      {
-        category: "Fração de uma Quantidade",
-        question: "Quanto é 1/3 de 24 alunos da turma?",
-        options: ["8 alunos", "6 alunos", "12 alunos", "9 alunos"],
-        correct: 0,
-        explanation: "Para calcular 1/3 de 24, dividimos 24 por 3 = 8 alunos."
-      },
-      {
-        category: "Equivalência de Frações",
-        question: "Qual das frações abaixo é equivalente a 1/2?",
-        options: ["5/10", "2/5", "3/8", "4/6"],
-        correct: 0,
-        explanation: "Simplificando 5/10 por 5, obtemos 1/2."
-      },
-      {
-        category: "Porcentagem & Decimal",
-        question: "O número decimal 0,25 corresponde a qual porcentagem?",
-        options: ["25%", "2,5%", "50%", "250%"],
-        correct: 0,
-        explanation: "0,25 é igual a 25/100, ou seja, 25%."
-      },
-      {
-        category: "Subtração com Decimais",
-        question: "Quanto é R$ 10,00 - R$ 3,40?",
-        options: ["R$ 6,60", "R$ 7,60", "R$ 6,40", "R$ 7,40"],
-        correct: 0,
-        explanation: "10,00 - 3,40 = 6,60."
-      },
-      {
-        category: "Frações no Cotidiano",
-        question: "Se uma pizza foi dividida em 8 pedaços e você comeu 2, qual fração sobrou?",
-        options: ["6/8", "2/8", "4/8", "1/8"],
-        correct: 0,
-        explanation: "8 pedaços - 2 comidos = 6 pedaços restantes. A fração restante é 6/8."
-      },
-      {
-        category: "Multiplicação com Decimais",
-        question: "Quanto é 0,5 × 4?",
-        options: ["2,0", "0,2", "20", "1,5"],
-        correct: 0,
-        explanation: "Metade de 4 (0,5 × 4) é igual a 2."
-      },
-      {
-        category: "Leitura de Decimais",
-        question: "Como se lê o número decimal 0,08?",
-        options: ["Oito centésimos", "Oito décimos", "Oito milésimos", "Oito inteiros"],
-        correct: 0,
-        explanation: "A segunda casa após a vírgula representa os centésimos. Portanto: 8 centésimos."
-      }
+      // ---- Level 1
+      { level: 1, tag: 'dec', category: 'Leitura de decimais', question: 'Como se lê 0,08?', answer: 'Oito centésimos', wrong: ['Oito décimos', 'Oito milésimos', 'Oito inteiros'], explanation: 'O 8 está na segunda casa depois da vírgula, a casa dos centésimos.' },
+      { level: 1, tag: 'dec', category: 'Leitura de decimais', question: 'Como se escreve "doze centésimos"?', answer: '0,12', wrong: ['1,2', '0,012', '12,0'], explanation: 'Centésimos ocupam duas casas depois da vírgula: 12 centésimos = 0,12.' },
+      { level: 1, tag: 'dec', category: 'Leitura de decimais', question: 'Como se lê 3,7?', answer: 'Três inteiros e sete décimos', wrong: ['Três inteiros e sete centésimos', 'Trinta e sete inteiros', 'Sete inteiros e três décimos'], explanation: 'Antes da vírgula ficam os inteiros (3); o 7 está na casa dos décimos.' },
+      { level: 1, tag: 'frac', category: 'Frações no dia a dia', question: 'Meia hora corresponde a que fração de uma hora?', answer: '1/2', wrong: ['1/3', '1/4', '2/1'], explanation: 'Meia hora é metade de uma hora: 1/2.' },
+      { level: 1, tag: 'frac', category: 'Termos da fração', question: 'Na fração 3/8, o número 8 é chamado de:', answer: 'Denominador', wrong: ['Numerador', 'Quociente', 'Resto'], explanation: 'O denominador (embaixo) indica em quantas partes iguais o inteiro foi dividido.' },
+      { level: 1, tag: 'frac', category: 'Termos da fração', question: 'Na fração 5/9, o que o número 5 indica?', answer: 'Quantas partes foram tomadas', wrong: ['Em quantas partes o inteiro foi dividido', 'O tamanho do inteiro', 'Quantas partes sobraram'], explanation: 'O numerador (em cima) diz quantas partes do inteiro foram consideradas.' },
+      { level: 1, tag: 'frac', category: 'Frações e decimais', question: 'Qual número decimal representa 1/2?', answer: '0,5', wrong: ['1,2', '0,2', '0,12'], explanation: '1/2 = 5/10 = 0,5. Metade de 1 é 0,5.' },
+      { level: 1, tag: 'dec', category: 'Comparação de decimais', question: 'Qual destas afirmações é verdadeira?', answer: '0,5 = 0,50', wrong: ['0,5 < 0,45', '0,50 > 0,5', '0,05 = 0,5'], explanation: 'Zeros à direita depois da última casa decimal não mudam o valor: 0,5 = 0,50.' },
+      { level: 1, tag: 'frac', category: 'Frações no dia a dia', question: 'Um quarto de pizza é o mesmo que:', answer: '1/4 da pizza', wrong: ['4/1 da pizza', '1/2 da pizza', '1/3 da pizza'], explanation: '"Um quarto" significa uma parte de um inteiro dividido em 4 partes iguais.' },
+      { level: 1, tag: 'dec', category: 'Dinheiro e decimais', question: 'R$ 0,25 corresponde a quantos centavos?', answer: '25 centavos', wrong: ['2,5 centavos', '250 centavos', '0,25 centavo'], explanation: 'R$ 1,00 tem 100 centavos. Então R$ 0,25 são 25 centésimos do real: 25 centavos.' },
+      { level: 1, tag: 'frac', category: 'Frações equivalentes', question: 'Qual fração representa o mesmo que um inteiro?', answer: '6/6', wrong: ['1/6', '6/1', '0/6'], explanation: 'Quando o numerador é igual ao denominador, tomamos todas as partes: é 1 inteiro.' },
+      { level: 1, tag: 'dec', category: 'Comparação de decimais', question: 'Qual número está entre 2 e 3?', answer: '2,4', wrong: ['3,2', '1,9', '0,24'], explanation: '2,4 é maior que 2 e menor que 3.' },
+
+      // ---- Level 2
+      { level: 2, tag: 'dec', category: 'Comparação de decimais', question: 'Qual é o maior número?', answer: '0,8', wrong: ['0,75', '0,079', '0,7'], explanation: 'Compare primeiro os décimos: 8 décimos é mais que 7 décimos. Ter mais algarismos não significa ser maior.' },
+      { level: 2, tag: 'dec', category: 'Ordenação de decimais', question: 'Qual sequência está em ordem crescente?', answer: '0,09 · 0,3 · 0,45', wrong: ['0,3 · 0,09 · 0,45', '0,45 · 0,3 · 0,09', '0,09 · 0,45 · 0,3'], explanation: 'Escrevendo com duas casas: 0,09 < 0,30 < 0,45.' },
+      { level: 2, tag: 'frac', category: 'Frações e decimais', question: 'Qual fração é igual a 0,75?', answer: '3/4', wrong: ['7/5', '75/10', '1/75'], explanation: '0,75 = 75/100. Dividindo numerador e denominador por 25, obtemos 3/4.' },
+      { level: 2, tag: 'frac', category: 'Simplificação', question: 'Qual é a forma simplificada de 8/12?', answer: '2/3', wrong: ['3/2', '3/4', '1/4'], explanation: 'Dividindo 8 e 12 pelo maior divisor comum (4): 8/12 = 2/3.' },
+      { level: 2, tag: 'frac', category: 'Fração de uma quantidade', question: 'Uma turma tem 30 alunos e 2/5 são meninos. Quantos meninos há?', answer: '12', wrong: ['6', '15', '18'], explanation: '1/5 de 30 é 6. Então 2/5 de 30 = 2 × 6 = 12 meninos.' },
+      { level: 2, tag: 'dec', category: 'Dinheiro e decimais', question: 'Paguei R$ 10,00 por um lanche de R$ 6,35. Quanto recebi de troco?', answer: 'R$ 3,65', wrong: ['R$ 4,65', 'R$ 3,75', 'R$ 4,35'], explanation: '10,00 − 6,35 = 3,65. Dica: de 6,35 até 7,00 faltam 0,65; de 7 até 10 faltam 3.' },
+      { level: 2, tag: 'frac', category: 'Números mistos', question: 'A fração 7/2 corresponde a:', answer: '3 inteiros e 1/2', wrong: ['2 inteiros e 1/7', '7 inteiros e 1/2', '3 inteiros e 1/7'], explanation: '7 ÷ 2 = 3 e sobra 1. Então 7/2 = 3 inteiros e 1/2.' },
+      { level: 2, tag: 'dec', category: 'Multiplicação por 10, 100', question: 'Quanto é 3,14 × 10?', answer: '31,4', wrong: ['3,140', '314', '0,314'], explanation: 'Multiplicar por 10 desloca a vírgula uma casa para a direita: 3,14 × 10 = 31,4.' },
+      { level: 2, tag: 'dec', category: 'Divisão por 10, 100', question: 'Quanto é 45 ÷ 100?', answer: '0,45', wrong: ['4,5', '4500', '0,045'], explanation: 'Dividir por 100 desloca a vírgula duas casas para a esquerda: 45 ÷ 100 = 0,45.' },
+      { level: 2, tag: 'frac', category: 'Frações e porcentagem', question: '50% de uma quantidade é o mesmo que:', answer: 'A metade', wrong: ['Um quarto', 'O dobro', 'Um terço'], explanation: '50% = 50/100 = 1/2, ou seja, a metade.' },
+
+      // ---- Level 3
+      { level: 3, tag: 'frac', category: 'Adição de frações', question: 'Quanto é 1/2 + 1/4?', answer: '3/4', wrong: ['2/6', '2/4', '1/6'], explanation: 'Transforme em quartos: 1/2 = 2/4. Então 2/4 + 1/4 = 3/4. Não se somam os denominadores!' },
+      { level: 3, tag: 'frac', category: 'Subtração de frações', question: 'Quanto é 2/3 − 1/6?', answer: '1/2', wrong: ['1/3', '1/6', '1/4'], explanation: '2/3 = 4/6. Então 4/6 − 1/6 = 3/6 = 1/2.' },
+      { level: 3, tag: 'frac', category: 'Problemas com frações', question: 'Lia leu 1/3 de um livro na segunda e 1/2 na terça. Que fração do livro ela já leu?', answer: '5/6', wrong: ['2/5', '2/6', '1/6'], explanation: 'Com denominador 6: 1/3 = 2/6 e 1/2 = 3/6. Somando: 5/6 do livro.' },
+      { level: 3, tag: 'frac', category: 'Problemas com frações', question: 'De uma barra de chocolate, Pedro comeu 3/8. Que fração da barra sobrou?', answer: '5/8', wrong: ['3/8', '8/3', '5/3'], explanation: 'A barra inteira é 8/8. Sobrou 8/8 − 3/8 = 5/8.' },
+      { level: 3, tag: 'dec', category: 'Multiplicação de decimais', question: 'Quanto é 0,5 × 0,4?', answer: '0,2', wrong: ['2,0', '0,02', '0,9'], explanation: '5 × 4 = 20. Somamos as casas decimais (1 + 1 = 2): 0,20 = 0,2.' },
+      { level: 3, tag: 'dec', category: 'Problemas com decimais', question: 'Um caderno custa R$ 4,50. Quanto custam 3 cadernos?', answer: 'R$ 13,50', wrong: ['R$ 12,50', 'R$ 12,15', 'R$ 7,50'], explanation: '4,50 × 3 = 13,50. Pense: 3 × R$ 4 = R$ 12 e 3 × R$ 0,50 = R$ 1,50.' },
+      { level: 3, tag: 'dec', category: 'Problemas com decimais', question: 'Uma garrafa tem 1,5 L de suco. Quantos copos de 0,25 L ela enche?', answer: '6 copos', wrong: ['5 copos', '4 copos', '60 copos'], explanation: '1,5 ÷ 0,25 = 6. Cada litro enche 4 copos; meio litro enche mais 2.' },
+      { level: 3, tag: 'frac', category: 'Fração de uma quantidade', question: 'Um tanque de 60 litros está com 3/4 da capacidade. Quantos litros faltam para enchê-lo?', answer: '15 litros', wrong: ['45 litros', '20 litros', '30 litros'], explanation: '3/4 de 60 = 45 litros já estão no tanque. Faltam 60 − 45 = 15 litros (ou seja, 1/4).' },
+      { level: 3, tag: 'dec', category: 'Média com decimais', question: 'As notas de Bia foram 7,5 e 8,5. Qual é a média dessas notas?', answer: '8,0', wrong: ['16,0', '7,0', '8,5'], explanation: 'Some as notas e divida por 2: (7,5 + 8,5) ÷ 2 = 16 ÷ 2 = 8,0.' },
+      { level: 3, tag: 'frac', category: 'Comparação de frações', question: 'Qual destas frações é a menor?', answer: '2/9', wrong: ['2/5', '2/3', '2/7'], explanation: 'Com numeradores iguais, a menor fração é a de maior denominador: as partes são menores.' }
     ];
+
+    // Every generator returns a question object with the same shape as QUESTION_BANK items.
+    const GENERATORS = {
+      1: [
+        function decimalFromTenths() {
+          const n = rand(1, 9);
+          return {
+            tag: 'dec', category: 'Frações e decimais',
+            question: `Qual número decimal representa ${n}/10?`,
+            answer: `0,${n}`,
+            wrong: [`${n},0`, `0,0${n}`, `1,${n}`, `${n},10`],
+            explanation: `${n}/10 são ${n} décimos. Os décimos ficam na primeira casa depois da vírgula: 0,${n}.`
+          };
+        },
+        function compareTenths() {
+          const digits = shuffle([1, 2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 4);
+          const max = Math.max(...digits);
+          return {
+            tag: 'dec', category: 'Comparação de decimais',
+            question: 'Qual destes números é o maior?',
+            answer: `0,${max}`,
+            wrong: digits.filter(d => d !== max).map(d => `0,${d}`),
+            explanation: `Todos têm 0 inteiros, então comparamos os décimos: ${max} é o maior algarismo, logo 0,${max} é o maior número.`
+          };
+        },
+        function partsEaten() {
+          // [food, parts, singular verb, plural verb]
+          const food = pick([['pizza', 'fatias', 'foi comida', 'foram comidas'], ['torta', 'pedaços', 'foi comido', 'foram comidos'], ['barra de chocolate', 'quadradinhos', 'foi comido', 'foram comidos'], ['melancia', 'fatias', 'foi comida', 'foram comidas']]);
+          const total = rand(4, 12);
+          const eaten = rand(1, total - 1);
+          const verb = eaten === 1 ? food[2] : food[3];
+          return {
+            tag: 'frac', category: 'Frações de um inteiro',
+            question: `Uma ${food[0]} foi dividida em ${total} ${food[1]} iguais e ${eaten} ${verb}. Que fração da ${food[0]} foi comida?`,
+            answer: `${eaten}/${total}`,
+            wrong: [`${total}/${eaten}`, `${total - eaten}/${total}`, `${eaten}/${total + eaten}`, `${eaten}/${total - eaten}`],
+            explanation: `O inteiro tem ${total} partes iguais (denominador) e ${eaten} foram consideradas (numerador): ${eaten}/${total}.`
+          };
+        },
+        function equivalentFraction() {
+          const [a, b] = pick([[1, 2], [1, 3], [2, 3], [1, 4], [3, 4], [2, 5], [1, 5], [3, 5]]);
+          const k = rand(2, 5);
+          return {
+            tag: 'frac', category: 'Frações equivalentes',
+            question: `Qual fração é equivalente a ${a}/${b}?`,
+            answer: `${a * k}/${b * k}`,
+            wrong: [`${a + k}/${b + k}`, `${a * k}/${b}`, `${a}/${b * k}`, `${a * k}/${b * k + 1}`],
+            explanation: `Multiplicando numerador e denominador por ${k}: ${a}×${k} = ${a * k} e ${b}×${k} = ${b * k}. Logo ${a}/${b} = ${a * k}/${b * k}.`
+          };
+        },
+        function placeValue() {
+          const [u, d, c] = shuffle([2, 3, 4, 5, 6, 7, 8, 9]).slice(0, 3);
+          const askTenths = Math.random() < 0.5;
+          const digit = askTenths ? d : c;
+          const place = askTenths ? 'décimos' : 'centésimos';
+          return {
+            tag: 'dec', category: 'Valor posicional',
+            question: `No número ${u},${d}${c}, o algarismo ${digit} representa:`,
+            answer: `${digit} ${place}`,
+            wrong: [`${digit} ${askTenths ? 'centésimos' : 'décimos'}`, `${digit} inteiros`, `${digit} milésimos`, `${digit} dezenas`],
+            explanation: `Depois da vírgula, a 1ª casa é dos décimos e a 2ª é dos centésimos. O ${digit} está na casa dos ${place}.`
+          };
+        }
+      ],
+      2: [
+        function addDecimals() {
+          const a = rand(110, 899);   // hundredths, e.g. 2,35
+          const b = rand(11, 59);     // tenths, e.g. 1,4
+          const sum = a + b * 10;
+          return {
+            tag: 'dec', category: 'Adição de decimais',
+            question: `Quanto é ${dec(a / 100, 2)} + ${dec(b / 10, 1)}?`,
+            answer: dec(sum / 100, 2),
+            wrong: [dec((a + b) / 100, 2), dec((sum + 10) / 100, 2), dec((sum + 100) / 100, 2), dec((sum - 10) / 100, 2)],
+            explanation: `Alinhe as vírgulas e complete com zero: ${dec(a / 100, 2)} + ${dec(b / 10, 2)} = ${dec(sum / 100, 2)}.`
+          };
+        },
+        function subtractDecimals() {
+          const whole = rand(3, 9);
+          const b = rand(110, whole * 100 - 40);
+          const diff = whole * 100 - b;
+          return {
+            tag: 'dec', category: 'Subtração de decimais',
+            question: `Quanto é ${whole} − ${dec(b / 100, 2)}?`,
+            answer: dec(diff / 100, 2),
+            wrong: [dec((diff + 100) / 100, 2), dec((diff + 10) / 100, 2), dec((whole * 100 + b) / 100, 2), dec(Math.abs(diff - 10) / 100, 2)],
+            explanation: `Escreva ${whole} como ${whole},00 e subtraia alinhando as vírgulas: ${whole},00 − ${dec(b / 100, 2)} = ${dec(diff / 100, 2)}.`
+          };
+        },
+        function fractionOfQuantity() {
+          const b = pick([2, 3, 4, 5, 6, 8, 10]);
+          const a = rand(1, b - 1);
+          const n = b * rand(3, 9);
+          const item = pick(['figurinhas', 'balas', 'moedas', 'páginas', 'bolinhas de gude']);
+          const part = n / b;
+          return {
+            tag: 'frac', category: 'Fração de uma quantidade',
+            question: `Quanto é ${a}/${b} de ${n} ${item}?`,
+            answer: `${part * a} ${item}`,
+            wrong: [`${part} ${item}`, `${n - part * a} ${item}`, `${part * (a + 1)} ${item}`, `${part + b} ${item}`, `${part * a + 1} ${item}`, `${part * a - 1} ${item}`],
+            explanation: `Divida ${n} por ${b} para achar 1/${b}: ${part}. Depois multiplique por ${a}: ${part} × ${a} = ${part * a}.`
+          };
+        },
+        function compareSameDenominator() {
+          const den = rand(7, 12);
+          const nums = shuffle(Array.from({ length: den - 1 }, (_, i) => i + 1)).slice(0, 4);
+          const max = Math.max(...nums);
+          return {
+            tag: 'frac', category: 'Comparação de frações',
+            question: 'Qual fração é a maior?',
+            answer: `${max}/${den}`,
+            wrong: nums.filter(n => n !== max).map(n => `${n}/${den}`),
+            explanation: `Os denominadores são iguais (as partes têm o mesmo tamanho), então vence o maior numerador: ${max}/${den}.`
+          };
+        },
+        function decimalToHundredths() {
+          let n = rand(11, 99);
+          if (n % 10 === 0) n++;
+          const s = String(n).padStart(2, '0');
+          return {
+            tag: 'frac', category: 'Frações decimais',
+            question: `Qual fração decimal representa 0,${s}?`,
+            answer: `${n}/100`,
+            wrong: [`${n}/10`, `${n}/1000`, `${n % 10}/100`, `${s[0]}/${s[1]}`],
+            explanation: `0,${s} tem duas casas decimais, ou seja, ${n} centésimos: ${n}/100.`
+          };
+        },
+        function fractionToDecimal() {
+          const table = [[1, 4, '0,25'], [3, 4, '0,75'], [1, 5, '0,2'], [2, 5, '0,4'], [3, 5, '0,6'], [4, 5, '0,8'], [1, 2, '0,5'], [3, 10, '0,3'], [7, 20, '0,35']];
+          const [a, b, ans] = pick(table);
+          const others = table.filter(t => t[2] !== ans).map(t => t[2]);
+          return {
+            tag: 'frac', category: 'Frações e decimais',
+            question: `Qual número decimal é igual a ${a}/${b}?`,
+            answer: ans,
+            wrong: [`${a},${b}`, `0,${a}${b}`, ...shuffle(others).slice(0, 2)],
+            explanation: `Divida o numerador pelo denominador: ${a} ÷ ${b} = ${ans}. Atenção: ${a}/${b} não é "${a},${b}".`
+          };
+        }
+      ],
+      3: [
+        function multiplyDecimal() {
+          const t = rand(11, 49); // tenths
+          const k = rand(2, 6);
+          const thing = pick([['fita', 'metros'], ['corda', 'metros'], ['garrafa', 'litros']]);
+          return {
+            tag: 'dec', category: 'Multiplicação de decimais',
+            question: `Uma ${thing[0]} tem ${dec(t / 10, 1)} ${thing[1]}. Quanto têm ${k} ${thing[0]}s iguais?`,
+            answer: `${dec(t * k / 10, 1)} ${thing[1]}`,
+            wrong: [`${dec(t * k / 100, 2)} ${thing[1]}`, `${t * k} ${thing[1]}`, `${dec((t + k * 10) / 10, 1)} ${thing[1]}`, `${dec((t * k + 10) / 10, 1)} ${thing[1]}`],
+            explanation: `${dec(t / 10, 1)} × ${k}: pense em ${t} décimos × ${k} = ${t * k} décimos = ${dec(t * k / 10, 1)}.`
+          };
+        },
+        function divideDecimal() {
+          const k = rand(2, 6);
+          const q = rand(11, 30); // tenths per part
+          const total = q * k;
+          return {
+            tag: 'dec', category: 'Divisão de decimais',
+            question: `Uma corda de ${dec(total / 10, 1)} metros foi dividida em ${k} partes iguais. Quanto mede cada parte?`,
+            answer: `${dec(q / 10, 1)} m`,
+            wrong: [`${q} m`, `${dec(q / 100, 2)} m`, `${dec((q + 1) / 10, 1)} m`, `${dec((q + 10) / 10, 1)} m`],
+            explanation: `${dec(total / 10, 1)} ÷ ${k} = ${dec(q / 10, 1)}. Confira: ${dec(q / 10, 1)} × ${k} = ${dec(total / 10, 1)}.`
+          };
+        },
+        function addSameDenominator() {
+          const den = rand(5, 12);
+          const a = rand(1, den - 2);
+          const b = rand(1, den - 1 - a);
+          return {
+            tag: 'frac', category: 'Adição de frações',
+            question: `Quanto é ${a}/${den} + ${b}/${den}?`,
+            answer: `${a + b}/${den}`,
+            wrong: [`${a + b}/${den * 2}`, `${a + b + 1}/${den}`, `${a * b}/${den}`, `${a + b}/${den + 1}`],
+            explanation: `Denominadores iguais: some só os numeradores e mantenha o denominador. ${a} + ${b} = ${a + b}, então ${a + b}/${den}.`
+          };
+        },
+        function subtractStory() {
+          const den = pick([8, 10, 12]);
+          const a = rand(5, den - 1);
+          const b = rand(1, a - 1);
+          return {
+            tag: 'frac', category: 'Subtração de frações',
+            question: `Uma jarra tinha ${a}/${den} de litro de suco. Foram servidos ${b}/${den} de litro. Quanto sobrou?`,
+            answer: `${a - b}/${den} de litro`,
+            wrong: [`${a + b}/${den} de litro`, `${a - b}/${den * 2} de litro`, `${a - b}/${den - 1} de litro`, `${b}/${den} de litro`],
+            explanation: `Com denominadores iguais, subtraia os numeradores: ${a}/${den} − ${b}/${den} = ${a - b}/${den}.`
+          };
+        },
+        function compareDifferentDenominators() {
+          let a, b, c, d;
+          do {
+            b = rand(2, 8); d = rand(2, 8);
+            a = rand(1, b - 1); c = rand(1, d - 1);
+          } while (b === d || a * d === c * b);
+          const first = `${a}/${b}`, second = `${c}/${d}`;
+          const firstBigger = a * d > c * b;
+          return {
+            tag: 'frac', category: 'Comparação de frações',
+            question: `Qual fração é maior: ${first} ou ${second}?`,
+            answer: firstBigger ? first : second,
+            wrong: [firstBigger ? second : first, 'As duas são iguais', 'Não é possível comparar'],
+            explanation: `Use o mesmo denominador (${b * d}): ${first} = ${a * d}/${b * d} e ${second} = ${c * b}/${b * d}. Logo ${firstBigger ? first : second} é maior.`
+          };
+        },
+        function trailProblem() {
+          const name = pick(['Ana', 'João', 'Duda', 'Rafa', 'Léo', 'Bia']);
+          const totalH = rand(220, 950); // hundredths of km
+          const walked = rand(5, Math.floor(totalH / 10) - 5) * 10;
+          const left = totalH - walked;
+          return {
+            tag: 'dec', category: 'Problemas com decimais',
+            question: `Uma trilha tem ${dec(totalH / 100, 2)} km. ${name} já caminhou ${dec(walked / 100, 1)} km. Quanto falta?`,
+            answer: `${dec(left / 100, 2)} km`,
+            wrong: [`${dec((totalH + walked) / 100, 2)} km`, `${dec((left + 10) / 100, 2)} km`, `${dec(Math.abs(totalH - walked / 10) / 100, 2)} km`, `${dec((left + 100) / 100, 2)} km`],
+            explanation: `Subtraia o que já foi caminhado do total: ${dec(totalH / 100, 2)} − ${dec(walked / 100, 2)} = ${dec(left / 100, 2)} km.`
+          };
+        },
+        function shoppingProblem() {
+          const [one, many] = pick([['Um lápis', 'lápis'], ['Uma borracha', 'borrachas'], ['Uma caneta', 'canetas'], ['Um pão', 'pães']]);
+          const price = rand(5, 39) * 5; // cents, multiple of 5
+          const qty = rand(2, 5);
+          const total = price * qty;
+          return {
+            tag: 'dec', category: 'Dinheiro e decimais',
+            question: `${one} custa R$ ${dec(price / 100, 2)}. Quanto custam ${qty} ${many}?`,
+            answer: `R$ ${dec(total / 100, 2)}`,
+            wrong: [`R$ ${dec((total + 10) / 100, 2)}`, `R$ ${dec(total / 1000, 2)}`, `R$ ${dec((price + qty * 100) / 100, 2)}`, `R$ ${dec((total + 100) / 100, 2)}`],
+            explanation: `Multiplique o preço pela quantidade: R$ ${dec(price / 100, 2)} × ${qty} = R$ ${dec(total / 100, 2)}.`
+          };
+        }
+      ]
+    };
+
+    // Turns raw question data into something ready to display: 4 unique options, shuffled.
+    function buildQuestion(raw, level) {
+      const wrong = [...new Set(raw.wrong.filter(w => w !== raw.answer))];
+      const options = shuffle([raw.answer, ...shuffle(wrong).slice(0, 3)]);
+      return { ...raw, level, options, correct: options.indexOf(raw.answer) };
+    }
+
+    const questionDecks = { 1: [], 2: [], 3: [] };
+    const recentQuestions = [];
+
+    function drawQuestion(level) {
+      for (let attempt = 0; attempt < 12; attempt++) {
+        let raw;
+        if (Math.random() < 0.5) {
+          raw = pick(GENERATORS[level])();
+        } else {
+          if (questionDecks[level].length === 0) {
+            questionDecks[level] = shuffle(QUESTION_BANK.filter(q => q.level === level));
+          }
+          raw = questionDecks[level].pop();
+        }
+        const q = buildQuestion(raw, level);
+        const key = q.question + '|' + q.answer;
+        if (q.options.length === 4 && !recentQuestions.includes(key)) {
+          recentQuestions.push(key);
+          if (recentQuestions.length > 20) recentQuestions.shift();
+          return q;
+        }
+      }
+      let q;
+      do { q = buildQuestion(pick(GENERATORS[level])(), level); } while (q.options.length !== 4);
+      return q;
+    }
+
+    /* ==========================================================================
+       WORLD CONFIG
+       ========================================================================== */
+    const TOTAL_TILES = 20;
+    const BOSS_TILE = 20;
+    const BOSS_RETREAT_TILE = 17;
+    const MAX_HP = 3;
+
+    const REALMS = [
+      { id: 1, name: 'Floresta das Frações', icon: '🌲', difficulty: 'Fácil', boss: { name: 'Troll da Ponte', face: '🧌' } },
+      { id: 2, name: 'Montanhas dos Decimais', icon: '🏔️', difficulty: 'Médio', boss: { name: 'Gigante de Pedra', face: '🗿' } },
+      { id: 3, name: 'Castelo do Dragão', icon: '🏰', difficulty: 'Difícil', boss: { name: 'Dragão Ancião', face: '🐉' } }
+    ];
+    const LEVEL_NAMES = { 1: 'Fácil', 2: 'Médio', 3: 'Difícil' };
+
+    const SPECIAL_TILES = {
+      1: { type: 'start', icon: '🚩', tag: 'Início' },
+      3: { type: 'chest', icon: '💰', tag: 'Baú' },
+      6: { type: 'portal', icon: '🌀', tag: 'Portal +2' },
+      9: { type: 'trap', icon: '🕸️', tag: 'Armadilha' },
+      11: { type: 'tavern', icon: '🍺', tag: 'Taverna' },
+      13: { type: 'chest', icon: '💰', tag: 'Baú' },
+      15: { type: 'portal', icon: '🌀', tag: 'Portal +2' },
+      16: { type: 'trap', icon: '🕸️', tag: 'Armadilha' },
+      18: { type: 'chest', icon: '💰', tag: 'Baú' },
+      20: { type: 'boss', icon: '☠️', tag: 'Chefão' }
+    };
+
+    const HEROES = [
+      { avatar: '🧙', cls: 'Mago', color: '#7b4dd6' },
+      { avatar: '🧝', cls: 'Arqueira Élfica', color: '#2f9e5b' },
+      { avatar: '🤺', cls: 'Espadachim', color: '#c0392b' },
+      { avatar: '🥷', cls: 'Ninja', color: '#34495e' },
+      { avatar: '🧚', cls: 'Fada', color: '#d65db1' },
+      { avatar: '🦉', cls: 'Coruja Sábia', color: '#b9770e' },
+      { avatar: '🐲', cls: 'Domador de Dragões', color: '#16a085' },
+      { avatar: '🦸', cls: 'Paladino', color: '#2e6fd6' }
+    ];
+    const heroColor = avatar => (HEROES.find(h => h.avatar === avatar) || HEROES[0]).color;
+    const heroClass = avatar => (HEROES.find(h => h.avatar === avatar) || HEROES[0]).cls;
+
+    const RIVALS = [
+      { name: 'Goblin Trapaceiro', avatar: '👺', color: '#5d8a1f', accuracy: 0.6 },
+      { name: 'Lobo Sombrio', avatar: '🐺', color: '#4a4f63', accuracy: 0.75 }
+    ];
+
+    // Question difficulty grows inside a realm (tiles 1–6, 7–13, 14–19) and with each realm.
+    function questionLevelFor(player) {
+      const bonus = player.position < 7 ? 0 : player.position < 14 ? 1 : 2;
+      return Math.min(3, player.realm + bonus);
+    }
+
+    /* ==========================================================================
+       SCREENS & MODALS
+       ========================================================================== */
+    function showScreen(name) {
+      document.querySelectorAll('.screen').forEach(s => { s.hidden = s.id !== `screen-${name}`; });
+      if (name === 'setup') renderSetup();
+      if (name !== 'teacher') teacherUnlocked = false;
+      window.scrollTo({ top: 0, behavior: REDUCED_MOTION ? 'auto' : 'smooth' });
+    }
+
+    function goHome() {
+      if (game && !game.over && !$('#screen-game').hidden) {
+        quitGame();
+        return;
+      }
+      showScreen('home');
+    }
+
+    // Blocks everything behind an open modal (keyboard and screen readers).
+    function syncInert() {
+      const anyOpen = Array.from(document.querySelectorAll('.modal')).some(m => !m.hidden);
+      $('.app').inert = anyOpen;
+      const dialogOpen = !$('#modal-dialog').hidden;
+      ['modal-question', 'modal-victory', 'modal-rules'].forEach(id => { $('#' + id).inert = dialogOpen; });
+    }
+
+    let lastFocus = null;
+    function openModal(id) {
+      lastFocus = document.activeElement;
+      $('#' + id).hidden = false;
+      syncInert();
+      const focusable = $('#' + id).querySelector('button:not([hidden]):not(:disabled), input, select');
+      if (focusable) focusable.focus();
+    }
+    function closeModal(id) {
+      $('#' + id).hidden = true;
+      syncInert();
+      if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus();
+    }
+
+    // Promise-based dialog. buttons: [{ label, value, cls }]
+    function dialog(title, bodyHtml, buttons) {
+      return new Promise(resolve => {
+        $('#dialog-title').textContent = title;
+        $('#dialog-body').innerHTML = bodyHtml;
+        const actions = $('#dialog-actions');
+        actions.innerHTML = '';
+        buttons.forEach(b => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'btn ' + (b.cls || '');
+          btn.textContent = b.label;
+          btn.onclick = () => {
+            const result = typeof b.value === 'function' ? b.value() : b.value;
+            if (result === undefined) return; // validation failed: keep open
+            closeModal('modal-dialog');
+            resolve(result);
+          };
+          actions.appendChild(btn);
+        });
+        openModal('modal-dialog');
+        const input = $('#dialog-body input');
+        if (input) input.focus();
+      });
+    }
+
+    const confirmDialog = (title, html, okLabel = 'Confirmar', danger = false) =>
+      dialog(title, html, [
+        { label: 'Cancelar', value: false, cls: 'btn-ghost' },
+        { label: okLabel, value: true, cls: danger ? 'btn-danger' : 'btn-gold' }
+      ]);
+
+    /* ==========================================================================
+       VISUAL EFFECTS
+       ========================================================================== */
+    function toast(icon, title, text = '') {
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.innerHTML = `<span class="i" aria-hidden="true">${esc(icon)}</span><div><b>${esc(title)}</b>${esc(text)}</div>`;
+      $('#toasts').appendChild(el);
+      setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 400); }, 3800);
+    }
+
+    function floatText(text, anchor) {
+      const rect = anchor ? anchor.getBoundingClientRect() : { left: innerWidth / 2, width: 0, top: innerHeight / 2 };
+      const el = document.createElement('div');
+      el.className = 'floater';
+      el.textContent = text;
+      el.style.left = `${rect.left + rect.width / 2}px`;
+      el.style.top = `${rect.top}px`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1400);
+    }
+
+    const fx = { canvas: null, ctx: null, parts: [], running: false };
+    function burst(count = 120, colors = ['#ffd977', '#e8b94a', '#b07cff', '#4ea8ff', '#38d483', '#ef4f63']) {
+      if (REDUCED_MOTION) return;
+      if (!fx.canvas) {
+        fx.canvas = $('#fx');
+        fx.ctx = fx.canvas.getContext('2d');
+      }
+      fx.canvas.width = innerWidth;
+      fx.canvas.height = innerHeight;
+      for (let i = 0; i < count; i++) {
+        fx.parts.push({
+          x: innerWidth / 2 + rand(-80, 80), y: innerHeight * 0.45,
+          vx: (Math.random() - 0.5) * 14, vy: -Math.random() * 14 - 4,
+          size: rand(5, 10), color: pick(colors), rot: Math.random() * 6, vr: (Math.random() - 0.5) * 0.3, life: 0
+        });
+      }
+      if (!fx.running) {
+        fx.running = true;
+        requestAnimationFrame(fxLoop);
+      }
+    }
+    function fxLoop() {
+      const { ctx, canvas } = fx;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      fx.parts = fx.parts.filter(p => p.life < 160 && p.y < canvas.height + 20);
+      for (const p of fx.parts) {
+        p.vy += 0.32; p.vx *= 0.99;
+        p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life++;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = Math.max(0, 1 - p.life / 160);
+        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        ctx.restore();
+      }
+      if (fx.parts.length) requestAnimationFrame(fxLoop);
+      else { fx.running = false; ctx.clearRect(0, 0, canvas.width, canvas.height); }
+    }
+
+    const PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+    function drawDice(value) {
+      $('#dice').innerHTML = Array.from({ length: 9 }, (_, i) => `<i class="${PIPS[value].includes(i) ? 'on' : ''}"></i>`).join('');
+    }
+
+    /* ==========================================================================
+       SETUP SCREEN
+       ========================================================================== */
+    const setup = { mode: 'solo', count: 4, slots: [] };
+
+    function setMode(mode) {
+      setup.mode = mode;
+      $('#mode-solo').setAttribute('aria-pressed', String(mode === 'solo'));
+      $('#mode-team').setAttribute('aria-pressed', String(mode === 'team'));
+      $('#count-box').hidden = mode !== 'team';
+      playSound('click');
+      renderSetup();
+    }
+
+    function setCount(count) {
+      setup.count = count;
+      document.querySelectorAll('.count-btn').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.count) === count)));
+      playSound('click');
+      renderSetup();
+    }
+
+    function renderSetup() {
+      const total = setup.mode === 'solo' ? 1 : setup.count;
+      while (setup.slots.length < total) {
+        const i = setup.slots.length;
+        setup.slots.push({ name: '', avatar: HEROES[i % HEROES.length].avatar });
+      }
+      $('#profile-names').innerHTML = Object.values(db.profiles).map(p => `<option value="${esc(p.name)}"></option>`).join('');
+      $('#slots').innerHTML = setup.slots.slice(0, total).map((slot, i) => `
+        <div class="slot">
+          <label for="slot-name-${i}">${setup.mode === 'solo' ? 'Nome do herói (seu nome)' : `Equipe ${i + 1}: nome`}</label>
+          <input id="slot-name-${i}" class="field" maxlength="24" list="profile-names" autocomplete="off"
+                 placeholder="${setup.mode === 'solo' ? 'Ex.: Maria Silva' : `Ex.: Equipe ${['Dourada', 'Esmeralda', 'Rubi', 'Safira'][i]}`}"
+                 value="${esc(slot.name)}" oninput="setup.slots[${i}].name = this.value">
+          <div class="avatar-row" role="group" aria-label="Escolha o personagem">
+            ${HEROES.map(h => `<button type="button" class="avatar-pick" aria-label="${esc(h.cls)}" title="${esc(h.cls)}" aria-pressed="${slot.avatar === h.avatar}" onclick="pickAvatar(${i}, '${h.avatar}')">${h.avatar}</button>`).join('')}
+          </div>
+          <div class="slot-class">Classe: ${esc(heroClass(slot.avatar))}</div>
+        </div>
+      `).join('') + (setup.mode === 'solo' ? `
+        <div class="slot">
+          <label>Rivais nesta aventura</label>
+          ${RIVALS.map(r => `<div class="row" style="margin-top:8px"><span style="font-size:1.6rem">${r.avatar}</span><div><strong>${esc(r.name)}</strong><div class="muted small">Acerta ~${Math.round(r.accuracy * 100)}% das perguntas</div></div></div>`).join('')}
+        </div>` : '');
+      $('#setup-error').textContent = '';
+    }
+
+    function pickAvatar(i, avatar) {
+      setup.slots[i].avatar = avatar;
+      playSound('click');
+      renderSetup();
+      const btn = document.querySelectorAll('#slots .slot')[i]?.querySelector(`[aria-pressed="true"]`);
+      if (btn) btn.focus();
+    }
 
     /* ==========================================================================
        GAME STATE
        ========================================================================== */
-    let gameMode = 'single'; // 'single' or 'multi'
-    let playerCount = 2;
-    let players = [];
-    let currentPlayerIdx = 0;
-    let currentDiceValue = 1;
-    let isRolling = false;
-    let currentQuestion = null;
-    let questionTimer = null;
-    let timeLeft = 45;
+    let game = null;   // current match
+    let runId = 0;     // bumps on every new match so stale timers can bail out
 
-    // Statistics tracking
-    let stats = {
-      totalQuestions: 0,
-      correctQuestions: 0,
-      timeSpent: 0
-    };
-
-    /* ==========================================================================
-       SETUP & INITIALIZATION
-       ========================================================================== */
-    function selectGameMode(mode) {
-      gameMode = mode;
-      const singleCard = document.getElementById('mode-card-single');
-      const multiCard = document.getElementById('mode-card-multi');
-      const singleCheck = document.getElementById('mode-single-check');
-      const multiCheck = document.getElementById('mode-multi-check');
-      const countBox = document.getElementById('player-count-box');
-
-      if (mode === 'single') {
-        singleCard.className = "cursor-pointer p-6 rounded-2xl border-2 border-pink-500 bg-pink-500/10 hover:bg-pink-500/20 transition text-left relative overflow-hidden group";
-        multiCard.className = "cursor-pointer p-6 rounded-2xl border-2 border-slate-700 bg-slate-800/40 hover:bg-slate-800/80 transition text-left relative overflow-hidden group";
-        singleCheck.className = "fa-solid fa-circle-check text-pink-400 text-xl";
-        multiCheck.className = "fa-regular fa-circle text-slate-500 text-xl";
-        countBox.classList.add('hidden');
-      } else {
-        multiCard.className = "cursor-pointer p-6 rounded-2xl border-2 border-pink-500 bg-pink-500/10 hover:bg-pink-500/20 transition text-left relative overflow-hidden group";
-        singleCard.className = "cursor-pointer p-6 rounded-2xl border-2 border-slate-700 bg-slate-800/40 hover:bg-slate-800/80 transition text-left relative overflow-hidden group";
-        multiCheck.className = "fa-solid fa-circle-check text-pink-400 text-xl";
-        singleCheck.className = "fa-regular fa-circle text-slate-500 text-xl";
-        countBox.classList.remove('hidden');
-      }
-      playSound('dice');
-    }
-
-    function setPlayerCount(count) {
-      playerCount = count;
-      document.querySelectorAll('.btn-player-count').forEach(btn => {
-        if (parseInt(btn.dataset.count) === count) {
-          btn.className = "btn-player-count w-12 h-12 rounded-xl bg-pink-500 border-2 border-pink-400 font-bold text-lg transition";
-        } else {
-          btn.className = "btn-player-count w-12 h-12 rounded-xl bg-slate-800 border border-slate-600 font-bold text-lg hover:border-pink-500 transition";
-        }
-      });
-      playSound('dice');
+    function makePlayer(base) {
+      return {
+        ...base,
+        realm: 1,
+        position: 1,
+        hp: MAX_HP,
+        combo: 0,
+        skipNext: false,
+        realmMistakes: 0,
+        session: { answered: 0, correct: 0, xp: 0, gold: 0, time: 0, achievements: [], startLevel: base.profile ? levelFromXp(base.profile.xp) : 1 }
+      };
     }
 
     function startGame() {
-      initAudio();
-      players = [];
-
-      if (gameMode === 'single') {
-        players.push({ ...ALL_AVATARS[0], name: 'Você (Humano)', isBot: false, position: 0 });
-        players.push({ ...ALL_AVATARS[1], name: 'Coruja Bot', isBot: true, position: 0 });
-        players.push({ ...ALL_AVATARS[2], name: 'Robô Bot', isBot: true, position: 0 });
-      } else {
-        for (let i = 0; i < playerCount; i++) {
-          players.push({
-            ...ALL_AVATARS[i],
-            name: `Jogador ${i + 1} (${ALL_AVATARS[i].emoji})`,
-            isBot: false,
-            position: 0
-          });
-        }
+      const total = setup.mode === 'solo' ? 1 : setup.count;
+      const slots = setup.slots.slice(0, total).map((s, i) => ({
+        name: (s.name || '').trim() || (setup.mode === 'solo' ? 'Herói' : `Equipe ${i + 1}`),
+        avatar: s.avatar
+      }));
+      if (setup.mode === 'solo' && !(setup.slots[0].name || '').trim()) {
+        $('#setup-error').textContent = 'Digite seu nome para salvar XP, ouro e conquistas no seu perfil.';
+        $('#slot-name-0').focus();
+        return;
+      }
+      const keys = slots.map(s => profileKey(s.name));
+      if (new Set(keys).size !== keys.length) {
+        $('#setup-error').textContent = 'Cada herói precisa de um nome diferente.';
+        return;
       }
 
-      currentPlayerIdx = 0;
-      stats = { totalQuestions: 0, correctQuestions: 0, timeSpent: 0 };
+      const players = slots.map(s => {
+        const profile = getOrCreateProfile(s.name, s.avatar);
+        profile.games++;
+        profile.lastPlayed = Date.now();
+        return makePlayer({ name: profile.name, avatar: s.avatar, color: heroColor(s.avatar), isBot: false, profile });
+      });
+      if (setup.mode === 'solo') {
+        RIVALS.forEach(r => players.push(makePlayer({ name: r.name, avatar: r.avatar, color: r.color, isBot: true, accuracy: r.accuracy, profile: null })));
+      }
+      saveDb();
 
-      document.getElementById('screen-setup').classList.add('hidden');
-      document.getElementById('screen-game').classList.remove('hidden');
+      runId++;
+      game = { id: runId, players, turn: 0, phase: 'idle', dice: 1, question: null, timer: null, timeLeft: 0, questionStart: 0, over: false, log: [] };
 
-      renderBoard();
-      updateTurnUI();
-      updateLeaderboard();
-      playSound('victory');
+      showScreen('game');
+      addLog(`⚔️ A aventura começou! ${players.length} heróis entram na Floresta das Frações.`);
+      playSound('levelup');
+      beginTurn();
+    }
+
+    async function quitGame() {
+      const ok = await confirmDialog('Sair da partida?', '<p class="muted">O XP, o ouro e as conquistas já ganhos ficam salvos no perfil.</p>', 'Sair', true);
+      if (!ok) return;
+      stopTimer();
+      runId++;
+      if (game) game.over = true;
+      $('#modal-question').hidden = true;
+      syncInert();
+      showScreen('home');
+    }
+
+    const current = () => game.players[game.turn];
+    const alive = id => game && game.id === id && !game.over;
+
+    function addLog(text) {
+      game.log.unshift(text);
+      game.log = game.log.slice(0, 30);
+      $('#log').innerHTML = game.log.map(l => `<li>${esc(l)}</li>`).join('');
     }
 
     /* ==========================================================================
-       BOARD & TOKEN RENDERING
+       RENDERING (game screen)
        ========================================================================== */
+    // Serpentine layout: row 1 left→right (1–5), row 2 right→left (6–10), and so on.
+    function tileGridPosition(n) {
+      const row = Math.floor((n - 1) / 5);
+      const offset = (n - 1) % 5;
+      const col = row % 2 === 0 ? offset : 4 - offset;
+      return { row: row + 1, col: col + 1 };
+    }
+
     function renderBoard() {
-      const grid = document.getElementById('board-grid');
-      grid.innerHTML = '';
+      const player = current();
+      const realm = REALMS[player.realm - 1];
+      const wrap = $('#board-wrap');
+      wrap.className = `panel board-wrap realm-${realm.id}`;
+      wrap.dataset.deco = realm.icon;
+      $('#board-eyebrow').textContent = `Reino ${realm.id} de 3 · trilha de ${player.name}`;
+      $('#board-title').textContent = `${realm.icon} ${realm.name}`;
+      $('#board-level').textContent = `Perguntas: ${LEVEL_NAMES[questionLevelFor(player)]}`;
 
-      for (let i = 1; i <= TOTAL_TILES; i++) {
-        const isSpecial = SPECIAL_TILES[i];
-        const tile = document.createElement('div');
-
-        let tileBg = "bg-slate-800/80 border-slate-700";
-        let specialBadge = "";
-
-        if (i === 1) {
-          tileBg = "bg-emerald-900/60 border-emerald-500/80";
-          specialBadge = `<span class="text-[9px] font-bold text-emerald-400 block">INÍCIO</span>`;
-        } else if (i === TOTAL_TILES) {
-          tileBg = "bg-amber-900/60 border-amber-500/80 tile-pulse";
-          specialBadge = `<span class="text-[9px] font-bold text-amber-400 block">CHEGADA 🏁</span>`;
-        } else if (isSpecial) {
-          if (isSpecial.type === 'boost') {
-            tileBg = "bg-indigo-900/60 border-indigo-500/80";
-            specialBadge = `<span class="text-[9px] font-bold text-indigo-300 block">🚀 +2</span>`;
-          } else {
-            tileBg = "bg-rose-900/60 border-rose-500/80";
-            specialBadge = `<span class="text-[9px] font-bold text-rose-300 block">🐊 -2</span>`;
-          }
-        }
-
-        tile.className = `min-h-[60px] sm:min-h-[75px] rounded-2xl border-2 ${tileBg} p-1.5 flex flex-col justify-between relative transition shadow-inner`;
-        tile.id = `tile-${i}`;
-
-        tile.innerHTML = `
-          <div class="flex justify-between items-center w-full">
-            <span class="text-xs font-black text-slate-400">${i}</span>
-            ${specialBadge}
-          </div>
-          <div class="tokens-container flex flex-wrap gap-1 justify-center items-center min-h-[28px]" id="tokens-tile-${i}"></div>
-        `;
-
-        grid.appendChild(tile);
+      let html = '';
+      for (let n = 1; n <= TOTAL_TILES; n++) {
+        const special = SPECIAL_TILES[n];
+        const { row, col } = tileGridPosition(n);
+        const icon = n === BOSS_TILE ? realm.boss.face : special?.icon;
+        const tag = n === BOSS_TILE ? realm.boss.name : special?.tag;
+        html += `
+          <div class="tile ${special ? special.type : ''}" id="tile-${n}" style="grid-row:${row};grid-column:${col}">
+            <span class="num">${n}</span>
+            ${icon ? `<span class="icon" aria-hidden="true">${icon}</span>` : ''}
+            <div class="tokens" id="tokens-${n}"></div>
+            ${tag ? `<span class="tag">${esc(tag)}</span>` : ''}
+          </div>`;
       }
-
+      $('#board').innerHTML = html;
       renderTokens();
     }
 
-    function renderTokens() {
-      // Clear all tiles
-      for (let i = 1; i <= TOTAL_TILES; i++) {
-        const container = document.getElementById(`tokens-tile-${i}`);
-        if (container) container.innerHTML = '';
+    function renderTokens(hopPlayer = null) {
+      const player = current();
+      for (let n = 1; n <= TOTAL_TILES; n++) {
+        const box = $(`#tokens-${n}`);
+        if (box) box.innerHTML = '';
+        $(`#tile-${n}`)?.classList.remove('here');
       }
-
-      // Render players at positions
-      players.forEach((player, idx) => {
-        const pos = player.position === 0 ? 1 : player.position;
-        const container = document.getElementById(`tokens-tile-${pos}`);
-
-        if (container) {
-          const token = document.createElement('div');
-          token.className = `w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr ${player.color} flex items-center justify-center text-sm sm:text-base shadow-lg border-2 border-white avatar-token ${idx === currentPlayerIdx ? 'ring-4 ring-pink-400 scale-110 z-10' : 'opacity-90'}`;
-          token.title = player.name;
-          token.innerText = player.emoji;
-          container.appendChild(token);
-        }
+      game.players.forEach((p, idx) => {
+        if (p.realm !== player.realm) return;
+        const box = $(`#tokens-${p.position}`);
+        if (!box) return;
+        const isActive = idx === game.turn;
+        const token = document.createElement('div');
+        token.className = `token ${isActive ? 'active' : ''} ${p === hopPlayer ? 'hop' : ''}`;
+        token.style.setProperty('--c', p.color);
+        token.title = p.name;
+        token.textContent = p.avatar;
+        box.appendChild(token);
+        if (isActive) $(`#tile-${p.position}`).classList.add('here');
       });
     }
 
-    /* ==========================================================================
-       TURN MANAGEMENT & DICE ROLLING
-       ========================================================================== */
-    function updateTurnUI() {
-      const activePlayer = players[currentPlayerIdx];
-
-      document.getElementById('current-player-name').innerText = activePlayer.name;
-      document.getElementById('panel-turn-title').innerText = `Vez de ${activePlayer.name}`;
-      
-      const btnRoll = document.getElementById('btn-roll-dice');
-      const actionHint = document.getElementById('action-hint');
-
-      if (activePlayer.isBot) {
-        btnRoll.disabled = true;
-        btnRoll.className = "w-full py-3.5 rounded-xl bg-slate-700 text-slate-400 font-bold text-lg cursor-not-allowed flex items-center justify-center gap-2";
-        actionHint.innerText = "O Computador está rolando o dado...";
-        setTimeout(rollDice, 1200);
-      } else {
-        btnRoll.disabled = false;
-        btnRoll.className = "w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-extrabold text-lg shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer";
-        actionHint.innerText = "Clique no botão para rolar o dado.";
-      }
-
-      // Render Top Turn Bar
-      const turnBar = document.getElementById('players-turn-bar');
-      turnBar.innerHTML = players.map((p, idx) => `
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${idx === currentPlayerIdx ? 'bg-pink-500/20 border-2 border-pink-500 text-white' : 'bg-slate-800/60 border border-slate-700 text-slate-400'}">
-          <span class="text-base">${p.emoji}</span>
-          <span>${p.name}</span>
-          <span class="bg-slate-900/80 px-2 py-0.5 rounded-md text-amber-300">Casa ${p.position === 0 ? 1 : p.position}</span>
-        </div>
-      `).join('');
-
-      renderTokens();
+    function renderRealmStrip() {
+      $('#realm-strip').innerHTML = REALMS.map(r => `
+        <div class="realm-step ${r.id === current().realm ? 'active' : ''}">
+          <div class="name">${r.icon} ${esc(r.name)}</div>
+          <div class="who" aria-label="Heróis neste reino">${game.players.filter(p => p.realm === r.id).map(p => p.avatar).join('') || '<span class="muted small">—</span>'}</div>
+        </div>`).join('');
     }
 
-    function rollDice() {
-      if (isRolling) return;
-      isRolling = true;
+    function renderHeroes() {
+      $('#heroes').innerHTML = `<span class="eyebrow">Heróis</span>` + game.players.map((p, idx) => {
+        const hearts = '❤️'.repeat(p.hp) + '🖤'.repeat(MAX_HP - p.hp);
+        let levelInfo = '';
+        if (p.profile) {
+          const lvl = levelFromXp(p.profile.xp);
+          const rank = rankFor(lvl);
+          const from = xpForLevel(lvl), to = xpForLevel(lvl + 1);
+          const pct = Math.round(((p.profile.xp - from) / (to - from)) * 100);
+          levelInfo = `
+            <div class="row" style="gap:6px;margin-top:4px">
+              <span class="chip purple">${rank.icon} ${esc(rank.name)} · Nv ${lvl}</span>
+              <span class="chip gold">💰 ${p.profile.gold}</span>
+            </div>
+            <div class="bar" style="margin-top:6px" title="${p.profile.xp} XP"><span style="width:${pct}%"></span></div>`;
+        } else {
+          levelInfo = `<div class="meta" style="margin-top:4px">Rival · computador</div>`;
+        }
+        return `
+          <div class="hero-card ${idx === game.turn ? 'active' : ''}">
+            <div class="ava" style="--c:${p.color}">${p.avatar}</div>
+            <div style="min-width:0">
+              <div class="row between" style="gap:6px">
+                <span class="nm">${esc(p.name)}</span>
+                <span class="hearts" role="img" aria-label="${p.hp} de ${MAX_HP} corações">${hearts}</span>
+              </div>
+              <div class="meta">Reino ${p.realm} · Casa ${p.position}/20 ${p.combo >= 2 ? `<span class="combo">🔥 combo ${p.combo}</span>` : ''}${p.skipNext ? ' · 😵 desmaiado' : ''}</div>
+              ${levelInfo}
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function renderAll() {
+      renderRealmStrip();
+      renderBoard();
+      renderHeroes();
+      const p = current();
+      $('#turn-name').textContent = `${p.avatar} ${p.name}`;
+    }
+
+    function setRollState() {
+      const p = current();
+      const btn = $('#btn-roll');
+      const canRoll = game.phase === 'idle' && !p.isBot;
+      btn.disabled = !canRoll;
+      if (p.isBot) $('#hint').textContent = `${p.name} está pensando no próximo movimento...`;
+      else if (game.phase === 'idle') $('#hint').textContent = 'Sua vez! Role o dado e encare o desafio.';
+    }
+
+    /* ==========================================================================
+       TURN FLOW
+       ========================================================================== */
+    async function beginTurn() {
+      const id = game.id;
+      game.phase = 'idle';
+      renderAll();
+      const p = current();
+
+      if (p.skipNext) {
+        p.skipNext = false;
+        p.hp = MAX_HP;
+        game.phase = 'busy';
+        setRollState();
+        $('#hint').textContent = `😵 ${p.name} está desmaiado e perde esta vez. Os corações foram restaurados.`;
+        addLog(`😵 ${p.name} desmaiou e perdeu a vez.`);
+        await sleep(1800);
+        if (!alive(id)) return;
+        nextTurn();
+        return;
+      }
+
+      setRollState();
+      if (!p.isBot) $('#btn-roll').focus({ preventScroll: true });
+      if (p.isBot) {
+        await sleep(1100);
+        if (!alive(id)) return;
+        rollDice();
+      }
+    }
+
+    function nextTurn() {
+      game.turn = (game.turn + 1) % game.players.length;
+      beginTurn();
+    }
+
+    async function rollDice() {
+      if (!game || game.phase !== 'idle') return;
+      const id = game.id;
+      game.phase = 'rolling';
+      setRollState();
       playSound('dice');
-
-      const diceEl = document.getElementById('dice-element');
-      const diceValueEl = document.getElementById('dice-value');
-
-      diceEl.classList.add('dice-rolling');
-
-      let rollInterval = setInterval(() => {
-        diceValueEl.innerText = Math.floor(Math.random() * 6) + 1;
-      }, 80);
-
-      setTimeout(() => {
-        clearInterval(rollInterval);
-        diceEl.classList.remove('dice-rolling');
-
-        currentDiceValue = Math.floor(Math.random() * 6) + 1;
-        diceValueEl.innerText = currentDiceValue;
-        isRolling = false;
-
-        // Open Math Question Challenge Modal
-        setTimeout(openQuestionModal, 600);
-      }, 800);
+      const dice = $('#dice');
+      dice.classList.add('rolling');
+      const ticker = setInterval(() => drawDice(rand(1, 6)), 90);
+      await sleep(REDUCED_MOTION ? 200 : 850);
+      clearInterval(ticker);
+      dice.classList.remove('rolling');
+      if (!alive(id)) return;
+      game.dice = rand(1, 6);
+      drawDice(game.dice);
+      $('#hint').textContent = `Tirou ${game.dice}! Acerte o desafio para avançar ${game.dice} ${game.dice === 1 ? 'casa' : 'casas'}.`;
+      await sleep(550);
+      if (!alive(id)) return;
+      openQuestion(false);
     }
 
     /* ==========================================================================
-       QUESTION & CHALLENGE LOGIC
+       QUESTIONS
        ========================================================================== */
-    function openQuestionModal() {
-      const player = players[currentPlayerIdx];
-      
-      // Select random question from bank
-      const randomIdx = Math.floor(Math.random() * QUESTION_BANK.length);
-      currentQuestion = QUESTION_BANK[randomIdx];
+    function openQuestion(isBoss) {
+      const id = game.id;
+      const p = current();
+      const level = isBoss ? Math.min(3, p.realm + 1) : questionLevelFor(p);
+      const q = drawQuestion(level);
+      const realm = REALMS[p.realm - 1];
+      game.question = { ...q, isBoss };
+      game.phase = 'question';
 
-      document.getElementById('question-avatar').innerText = player.emoji;
-      document.getElementById('question-player-label').innerText = `Desafio para ${player.name}`;
-      document.getElementById('question-category').innerText = currentQuestion.category;
-      document.getElementById('question-title').innerText = currentQuestion.question;
+      const card = $('#q-card');
+      card.classList.toggle('boss', isBoss);
+      if (isBoss) {
+        $('#boss-face').textContent = realm.boss.face;
+        $('#boss-name').textContent = `BATALHA CONTRA O ${realm.boss.name.toUpperCase()}`;
+        playSound('boss');
+      }
+      $('#q-ava').textContent = p.avatar;
+      $('#q-player').textContent = `Desafio de ${p.name}`;
+      $('#q-level').className = `lvl lvl-${level}`;
+      $('#q-level').textContent = LEVEL_NAMES[level];
+      $('#q-cat').textContent = q.category;
+      $('#q-text').textContent = q.question;
+      $('#q-reward').textContent = isBoss
+        ? 'Vença para conquistar o reino! Se errar, você recua para a casa 17.'
+        : `Acertou? Avance ${game.dice} ${game.dice === 1 ? 'casa' : 'casas'}. Errou? Perde 1 ❤️.`;
 
-      // Render Options
-      const container = document.getElementById('options-container');
-      container.innerHTML = '';
-
-      currentQuestion.options.forEach((opt, idx) => {
+      const box = $('#q-choices');
+      box.innerHTML = '';
+      q.options.forEach((opt, i) => {
         const btn = document.createElement('button');
-        btn.className = "p-4 rounded-xl border-2 border-slate-200 hover:border-purple-500 hover:bg-purple-50 text-left font-bold text-slate-800 transition flex items-center gap-3";
-        btn.innerHTML = `<span class="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-extrabold text-sm">${String.fromCharCode(65 + idx)}</span> ${opt}`;
-        btn.onclick = () => handleAnswer(idx);
-        container.appendChild(btn);
+        btn.type = 'button';
+        btn.className = 'choice';
+        btn.innerHTML = `<span class="rune" aria-hidden="true">${'ABCD'[i]}</span><span>${esc(opt)}</span>`;
+        btn.setAttribute('aria-label', `${'ABCD'[i]}: ${opt}`);
+        btn.onclick = () => answer(i);
+        if (p.isBot) btn.disabled = true;
+        box.appendChild(btn);
       });
 
-      // Reset Feedback
-      document.getElementById('feedback-panel').className = "hidden p-4 rounded-2xl mb-4 text-sm font-semibold transition";
-      document.getElementById('btn-next-turn').classList.add('hidden');
+      $('#q-feedback').hidden = true;
+      $('#btn-continue').hidden = true;
+      $('#modal-question').hidden = false;
+      syncInert();
+      if (!p.isBot) box.querySelector('button').focus();
 
-      // Start Timer
-      timeLeft = 45;
-      document.getElementById('timer-text').innerText = `${timeLeft}s`;
-      clearInterval(questionTimer);
-      questionTimer = setInterval(() => {
-        timeLeft--;
-        stats.timeSpent++;
-        document.getElementById('timer-text').innerText = `${timeLeft}s`;
+      startTimer(isBoss ? Math.max(15, Math.round(db.settings.timer * 0.85)) : db.settings.timer);
 
-        if (timeLeft <= 0) {
-          clearInterval(questionTimer);
-          handleAnswer(-1); // Time out
+      if (p.isBot) {
+        const thinking = rand(1600, 3200);
+        setTimeout(() => {
+          if (!alive(id) || game.phase !== 'question') return;
+          const right = Math.random() < p.accuracy;
+          const wrongIdx = shuffle([0, 1, 2, 3].filter(i => i !== q.correct))[0];
+          answer(right ? q.correct : wrongIdx);
+        }, thinking);
+      }
+    }
+
+    function startTimer(seconds) {
+      stopTimer();
+      const id = game.id;
+      game.timeLeft = seconds;
+      game.timeTotal = seconds;
+      game.questionStart = performance.now();
+      updateTimer();
+      game.timer = setInterval(() => {
+        if (!alive(id)) { stopTimer(); return; }
+        game.timeLeft--;
+        updateTimer();
+        if (game.timeLeft <= 0) {
+          stopTimer();
+          answer(-1);
         }
       }, 1000);
-
-      document.getElementById('modal-question').classList.remove('hidden');
-
-      // Auto Bot Answer
-      if (player.isBot) {
-        setTimeout(() => {
-          // Bot has 75% accuracy
-          const isCorrect = Math.random() < 0.75;
-          const chosenIdx = isCorrect ? currentQuestion.correct : (currentQuestion.correct + 1) % currentQuestion.options.length;
-          handleAnswer(chosenIdx);
-        }, 2000);
-      }
+    }
+    function stopTimer() {
+      if (game && game.timer) { clearInterval(game.timer); game.timer = null; }
+    }
+    function updateTimer() {
+      const t = $('#q-timer');
+      t.textContent = `${Math.max(0, game.timeLeft)}s`;
+      t.classList.toggle('low', game.timeLeft <= 10);
+      $('#q-timebar').style.width = `${(game.timeLeft / game.timeTotal) * 100}%`;
     }
 
-    function handleAnswer(selectedIndex) {
-      clearInterval(questionTimer);
-      stats.totalQuestions++;
+    function answer(choice) {
+      if (!game || game.phase !== 'question') return;
+      game.phase = 'feedback';
+      stopTimer();
+      const p = current();
+      const q = game.question;
+      const elapsed = (performance.now() - game.questionStart) / 1000;
+      const right = choice === q.correct;
 
-      const isCorrect = selectedIndex === currentQuestion.correct;
-      if (isCorrect) stats.correctQuestions++;
-
-      const feedbackPanel = document.getElementById('feedback-panel');
-      const feedbackTitle = document.getElementById('feedback-title');
-      const feedbackText = document.getElementById('feedback-text');
-      const optionsContainer = document.getElementById('options-container');
-
-      // Disable options buttons
-      Array.from(optionsContainer.children).forEach((btn, idx) => {
+      Array.from($('#q-choices').children).forEach((btn, i) => {
         btn.disabled = true;
-        if (idx === currentQuestion.correct) {
-          btn.className = "p-4 rounded-xl border-2 border-green-500 bg-green-100 text-slate-900 font-bold flex items-center gap-3";
-        } else if (idx === selectedIndex) {
-          btn.className = "p-4 rounded-xl border-2 border-red-500 bg-red-100 text-slate-900 font-bold flex items-center gap-3";
-        } else {
-          btn.className = "p-4 rounded-xl border-2 border-slate-200 bg-slate-100 text-slate-400 font-bold flex items-center gap-3 opacity-60";
-        }
+        if (i === q.correct) btn.classList.add('right');
+        else if (i === choice) btn.classList.add('wrong');
+        else btn.classList.add('dim');
       });
 
-      if (isCorrect) {
-        playSound('correct');
-        feedbackPanel.className = "p-4 rounded-2xl mb-4 text-sm font-semibold bg-green-100 border border-green-300 text-green-900 block";
-        feedbackTitle.innerText = "🎉 Resposta Correta! + Avança no Tabuleiro!";
-        feedbackText.innerText = currentQuestion.explanation;
+      const rewards = [];
+      const extra = { flash: false, dragon: false, perfect: false };
+      p.session.answered++;
+      p.session.time += elapsed;
+      if (p.profile) p.profile.answered++;
 
-        // Move active player
-        movePlayer(players[currentPlayerIdx], currentDiceValue);
+      if (right) {
+        p.combo++;
+        p.session.correct++;
+        const multiplier = p.combo >= 5 ? 2 : p.combo >= 3 ? 1.5 : 1;
+        const speedBonus = game.timeLeft >= game.timeTotal * 0.6 ? 5 : 0;
+        let xp = Math.round(([0, 10, 18, 28][q.level] + speedBonus) * multiplier);
+        let gold = [0, 2, 3, 5][q.level];
+        if (q.isBoss) { xp += 60; gold += 15; }
+        if (speedBonus) rewards.push('⚡ Rápido +5');
+        if (multiplier > 1) rewards.push(`🔥 Combo ×${String(multiplier).replace('.', ',')}`);
+        if (elapsed < 5 && !p.isBot) extra.flash = true;
+        if (p.profile) {
+          p.profile.correct++;
+          if (q.tag === 'frac') p.profile.fracCorrect++; else p.profile.decCorrect++;
+          p.profile.bestCombo = Math.max(p.profile.bestCombo, p.combo);
+        }
+        grant(p, xp, gold, rewards);
+        playSound('correct');
       } else {
+        p.combo = 0;
+        p.realmMistakes++;
+        p.hp = Math.max(0, p.hp - 1);
         playSound('wrong');
-        feedbackPanel.className = "p-4 rounded-2xl mb-4 text-sm font-semibold bg-red-100 border border-red-300 text-red-900 block";
-        feedbackTitle.innerText = "❌ Resposta Incorreta!";
-        feedbackText.innerText = `Explicação: ${currentQuestion.explanation}`;
       }
 
-      const activePlayer = players[currentPlayerIdx];
-      if (activePlayer.isBot) {
-        setTimeout(closeQuestionModal, 2500);
+      // Feedback text
+      const fb = $('#q-feedback');
+      fb.className = `feedback ${right ? 'ok' : 'bad'}`;
+      let title, text = q.explanation;
+      if (right) {
+        title = q.isBoss ? `⚔️ ${REALMS[p.realm - 1].boss.name} derrotado!` : pick(['🎉 Resposta certa!', '✨ Mandou bem!', '🏹 Na mosca!', '💪 Excelente!']);
       } else {
-        document.getElementById('btn-next-turn').classList.remove('hidden');
+        title = choice === -1 ? '⏰ O tempo acabou!' : '❌ Não foi dessa vez.';
+        text = `A resposta certa era "${q.options[q.correct]}". ${q.explanation}`;
+        if (q.isBoss) text += ` ${p.name} recua para a casa ${BOSS_RETREAT_TILE}.`;
+        if (p.hp === 0) text += ` Sem corações: ${p.name} desmaiou e vai perder a próxima vez.`;
+      }
+      $('#q-fb-title').textContent = title;
+      $('#q-fb-text').textContent = text;
+      $('#q-fb-rewards').innerHTML = rewards.map(r => `<span class="chip">${esc(r)}</span>`).join('');
+      fb.hidden = false;
+
+      game.pending = { right, isBoss: q.isBoss, extra };
+      if (p.hp === 0) p.skipNext = true;
+
+      if (p.profile) {
+        if (right && q.isBoss) {
+          p.profile.bosses++;
+          if (p.realm === 3) extra.dragon = true;
+          if (p.realmMistakes === 0) extra.perfect = true;
+        }
+        checkAchievements(p, extra);
+        saveDb();
+      }
+      renderHeroes();
+
+      const btn = $('#btn-continue');
+      btn.textContent = right ? (q.isBoss ? 'Conquistar o reino ➔' : `Avançar ${game.dice} ${game.dice === 1 ? 'casa' : 'casas'} ➔`) : 'Continuar ➔';
+      if (p.isBot) {
+        const id = game.id;
+        setTimeout(() => { if (alive(id) && game.phase === 'feedback') continueTurn(); }, 2600);
+      } else {
+        btn.hidden = false;
+        btn.focus();
       }
     }
 
-    function movePlayer(player, steps) {
-      let currentPos = player.position === 0 ? 1 : player.position;
-      let newPos = currentPos + steps;
+    // Gives XP and gold to a player (and its profile), with level-up detection.
+    function grant(p, xp, gold, rewards) {
+      gold = Math.round(gold * db.settings.goldMultiplier);
+      p.session.xp += xp;
+      p.session.gold += gold;
+      if (rewards) {
+        rewards.unshift(`+${xp} XP`);
+        if (gold) rewards.splice(1, 0, `+${gold} 💰`);
+      }
+      if (!p.profile) return;
+      const before = levelFromXp(p.profile.xp);
+      p.profile.xp += xp;
+      p.profile.gold += gold;
+      p.profile.goldEarned += gold;
+      const after = levelFromXp(p.profile.xp);
+      if (after > before) {
+        const rank = rankFor(after);
+        const newRank = rankFor(before).name !== rank.name;
+        setTimeout(() => {
+          playSound('levelup');
+          toast(rank.icon, `${p.name} subiu para o nível ${after}!`, newRank ? ` Nova patente: ${rank.name}!` : '');
+          burst(60);
+        }, 300);
+      }
+    }
 
-      if (newPos > TOTAL_TILES) newPos = TOTAL_TILES;
-
-      player.position = newPos;
-
-      // Check special tiles
-      const special = SPECIAL_TILES[newPos];
-      if (special) {
-        if (special.type === 'boost') {
-          player.position = Math.min(TOTAL_TILES, newPos + 2);
-        } else if (special.type === 'swamp') {
-          player.position = Math.max(1, newPos - 2);
+    function checkAchievements(p, extra) {
+      for (const a of ACHIEVEMENTS) {
+        if (p.profile.achievements[a.id]) continue;
+        if (a.test(p.profile, extra)) {
+          p.profile.achievements[a.id] = Date.now();
+          p.profile.gold += ACHIEVEMENT_GOLD;
+          p.profile.goldEarned += ACHIEVEMENT_GOLD;
+          p.session.gold += ACHIEVEMENT_GOLD;
+          p.session.achievements.push(a);
+          setTimeout(() => {
+            playSound('achievement');
+            toast(a.icon, `${p.name}: ${a.name}`, ` Conquista desbloqueada! ${a.desc} +${ACHIEVEMENT_GOLD} 💰`);
+          }, 500);
         }
       }
+    }
 
-      renderTokens();
-      updateLeaderboard();
+    async function continueTurn() {
+      if (!game || game.phase !== 'feedback') return;
+      const id = game.id;
+      game.phase = 'moving';
+      $('#modal-question').hidden = true;
+      syncInert();
+      const p = current();
+      const { right, isBoss } = game.pending;
 
-      // Check Victory
-      if (player.position >= TOTAL_TILES) {
-        setTimeout(() => showVictoryModal(player), 800);
+      if (isBoss) {
+        if (right) {
+          await conquerRealm(p);
+        } else {
+          p.position = BOSS_RETREAT_TILE;
+          addLog(`💀 ${p.name} foi derrotado pelo ${REALMS[p.realm - 1].boss.name} e recuou para a casa ${BOSS_RETREAT_TILE}.`);
+          renderAll();
+        }
+      } else if (right) {
+        await moveSteps(p, game.dice);
+        if (!alive(id)) return;
+        await resolveTile(p);
+      } else {
+        addLog(`❌ ${p.name} errou e ficou na casa ${p.position}.`);
+      }
+
+      if (!alive(id)) return;
+      if (game.phase === 'boss') {
+        await sleep(600);
+        if (!alive(id)) return;
+        openQuestion(true);
+        return;
+      }
+      await sleep(400);
+      if (!alive(id)) return;
+      nextTurn();
+    }
+
+    async function moveSteps(p, steps) {
+      const id = game.id;
+      const dir = steps > 0 ? 1 : -1;
+      for (let i = 0; i < Math.abs(steps); i++) {
+        const next = p.position + dir;
+        if (next < 1 || next > TOTAL_TILES) break;
+        p.position = next;
+        renderTokens(p);
+        playSound('step');
+        await sleep(REDUCED_MOTION ? 60 : 280);
+        if (!alive(id)) return;
+        if (p.position === BOSS_TILE) break;
+      }
+      renderHeroes();
+    }
+
+    async function resolveTile(p) {
+      const id = game.id;
+      const tile = SPECIAL_TILES[p.position];
+      const anchor = $(`#tile-${p.position}`);
+      const type = tile ? tile.type : null;
+
+      if (type === 'chest') {
+        const gold = rand(3, 8);
+        grant(p, 0, gold);
+        playSound('coin');
+        floatText(`+${Math.round(gold * db.settings.goldMultiplier)} 💰`, anchor);
+        addLog(`💰 ${p.name} abriu um baú e achou ${Math.round(gold * db.settings.goldMultiplier)} moedas!`);
+        if (p.profile) { checkAchievements(p, {}); saveDb(); }
+      } else if (type === 'portal') {
+        playSound('portal');
+        floatText('🌀 +2', anchor);
+        addLog(`🌀 ${p.name} entrou num portal mágico e avançou 2 casas!`);
+        await sleep(350);
+        if (!alive(id)) return;
+        await moveSteps(p, 2);
+      } else if (type === 'trap') {
+        playSound('trap');
+        floatText('🕸️ −2', anchor);
+        addLog(`🕸️ ${p.name} caiu numa armadilha e recuou 2 casas.`);
+        await sleep(350);
+        if (!alive(id)) return;
+        await moveSteps(p, -2);
+      } else if (type === 'tavern') {
+        grant(p, 10, 0);
+        p.hp = Math.min(MAX_HP, p.hp + 1);
+        playSound('coin');
+        floatText('🍺 +10 XP ❤️', anchor);
+        addLog(`🍺 ${p.name} descansou na taverna: +10 XP e +1 ❤️.`);
+        if (p.profile) saveDb();
+      } else {
+        addLog(`✅ ${p.name} acertou e avançou para a casa ${p.position}.`);
+      }
+
+      renderHeroes();
+      if (p.position === BOSS_TILE) {
+        addLog(`☠️ ${p.name} chegou ao covil do ${REALMS[p.realm - 1].boss.name}!`);
+        game.phase = 'boss';
       }
     }
 
-    function closeQuestionModal() {
-      document.getElementById('modal-question').classList.add('hidden');
-
-      // Check if winner arrived
-      const winner = players.find(p => p.position >= TOTAL_TILES);
-      if (winner) return;
-
-      // Pass turn to next player
-      currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
-      updateTurnUI();
+    async function conquerRealm(p) {
+      const realm = REALMS[p.realm - 1];
+      burst(90);
+      addLog(`🏳️ ${p.name} derrotou o ${realm.boss.name} e conquistou ${realm.name}!`);
+      if (p.realm === REALMS.length) {
+        finishGame(p);
+        return;
+      }
+      toast(realm.boss.face, `${realm.name} conquistada!`, ` ${p.name} segue para ${REALMS[p.realm].name}.`);
+      p.realm++;
+      p.position = 1;
+      p.hp = MAX_HP;
+      p.realmMistakes = 0;
+      renderAll();
+      await sleep(700);
     }
 
     /* ==========================================================================
-       LEADERBOARD & VICTORY
+       VICTORY
        ========================================================================== */
-    function updateLeaderboard() {
-      const sorted = [...players].sort((a, b) => (b.position || 1) - (a.position || 1));
-      const container = document.getElementById('mini-leaderboard');
-
-      container.innerHTML = sorted.map((p, idx) => `
-        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs">
-          <div class="flex items-center gap-2">
-            <span class="font-extrabold ${idx === 0 ? 'text-amber-400' : 'text-slate-400'}">#${idx + 1}</span>
-            <span class="text-base">${p.emoji}</span>
-            <span class="font-bold text-white">${p.name}</span>
-          </div>
-          <span class="font-black text-pink-400">Casa ${p.position === 0 ? 1 : p.position}/20</span>
-        </div>
-      `).join('');
-    }
-
-    function showVictoryModal(winner) {
+    function finishGame(winner) {
+      game.over = true;
+      stopTimer();
+      const bonus = 30;
+      if (winner.profile) {
+        winner.profile.wins++;
+        grant(winner, 40, bonus);
+        checkAchievements(winner, {});
+      }
+      saveDb();
       playSound('victory');
+      burst(200);
+      setTimeout(() => burst(140), 700);
 
-      // Trigger Confetti Celebration
-      if (typeof confetti === 'function') {
-        confetti({
-          particleCount: 120,
-          spread: 80,
-          origin: { y: 0.6 }
-        });
-      }
+      $('#victory-title').textContent = `${winner.avatar} ${winner.name} venceu!`;
+      $('#victory-sub').textContent = winner.isBot
+        ? 'Os rivais levaram a melhor desta vez. Treine e volte mais forte!'
+        : `Os três reinos foram conquistados! Bônus de vitória: +40 XP e +${Math.round(bonus * db.settings.goldMultiplier)} 💰.`;
 
-      document.getElementById('winner-avatar').innerText = winner.emoji;
-      document.getElementById('winner-name').innerText = winner.name;
-      document.getElementById('winner-score').innerText = `Alcançou a Casa 20 em primeiro lugar!`;
+      const ordered = [...game.players].sort((a, b) => (b === winner) - (a === winner) || b.realm - a.realm || b.position - a.position);
+      $('#podium').innerHTML = ordered.map((p, i) => {
+        const s = p.session;
+        const acc = s.answered ? Math.round((s.correct / s.answered) * 100) : 0;
+        const avg = s.answered ? Math.round(s.time / s.answered) : 0;
+        let levelLine = '';
+        if (p.profile) {
+          const lvl = levelFromXp(p.profile.xp);
+          levelLine = `<span class="chip purple">${rankFor(lvl).icon} ${esc(rankFor(lvl).name)} · Nv ${lvl}${lvl > s.startLevel ? ' ⬆️' : ''}</span>`;
+        }
+        return `
+          <div class="result ${p === winner ? 'win' : ''}">
+            <div class="row between">
+              <div class="row"><span style="font-size:1.8rem">${['🥇', '🥈', '🥉', '🎖️', '🎖️'][i]}</span><span style="font-size:1.6rem">${p.avatar}</span><strong>${esc(p.name)}</strong></div>
+              <span class="muted small">Reino ${p.realm} · casa ${p.position}</span>
+            </div>
+            <div class="row" style="margin-top:8px;gap:6px">
+              <span class="chip green">🎯 ${acc}% de acertos (${s.correct}/${s.answered})</span>
+              <span class="chip blue">⏱️ ${avg}s por pergunta</span>
+              ${p.profile ? `<span class="chip">+${s.xp} XP</span><span class="chip gold">+${s.gold} 💰</span>${levelLine}` : ''}
+            </div>
+            ${s.achievements.length ? `<div class="small" style="margin-top:8px">Conquistas: ${s.achievements.map(a => `${a.icon} ${esc(a.name)}`).join(' · ')}</div>` : ''}
+          </div>`;
+      }).join('');
 
-      // Stats calculation
-      const acc = stats.totalQuestions > 0 ? Math.round((stats.correctQuestions / stats.totalQuestions) * 100) : 100;
-      const avgTime = stats.totalQuestions > 0 ? Math.round(stats.timeSpent / stats.totalQuestions) : 0;
-
-      document.getElementById('stat-accuracy').innerText = `${acc}% de acertos`;
-      document.getElementById('stat-time').innerText = `${avgTime} seg/questão`;
-
-      document.getElementById('modal-victory').classList.remove('hidden');
-    }
-
-    function resetToSetup() {
-      document.getElementById('modal-victory').classList.add('hidden');
-      document.getElementById('screen-game').classList.add('hidden');
-      document.getElementById('screen-setup').classList.remove('hidden');
+      const finishedId = game.id;
+      setTimeout(() => {
+        if (game && game.id === finishedId && !$('#screen-game').hidden) openModal('modal-victory');
+      }, 900);
     }
 
     /* ==========================================================================
-       INSTRUCTIONS MODAL
+       SHOP
        ========================================================================== */
-    function showInstructions() {
-      document.getElementById('modal-instructions').classList.remove('hidden');
+    function profilesSorted() {
+      return Object.values(db.profiles).sort((a, b) => b.xp - a.xp || a.name.localeCompare(b.name));
     }
-    function hideInstructions() {
-      document.getElementById('modal-instructions').classList.add('hidden');
+
+    function fillProfileSelect(select, preferId) {
+      const list = Object.values(db.profiles).sort((a, b) => b.lastPlayed - a.lastPlayed);
+      const keep = preferId || select.value;
+      select.innerHTML = list.map(p => `<option value="${esc(p.id)}">${p.avatar} ${esc(p.name)}</option>`).join('');
+      if (list.some(p => p.id === keep)) select.value = keep;
+      return list.length;
     }
+
+    function openShop() {
+      const preferred = game && game.players.find(p => p.profile)?.profile.id;
+      fillProfileSelect($('#shop-profile'), preferred);
+      showScreen('shop');
+      renderShop();
+    }
+
+    function renderShop() {
+      const profile = db.profiles[$('#shop-profile').value];
+      $('#shop-empty').hidden = Boolean(profile);
+      $('#shop-wallet').textContent = `💰 ${profile ? profile.gold : 0}`;
+      const items = db.shop.filter(i => i.active);
+      $('#shop-grid').innerHTML = !profile ? '' : items.map(item => {
+        const missing = item.price - profile.gold;
+        return `
+          <div class="item">
+            <div class="ico" aria-hidden="true">${esc(item.icon)}</div>
+            <h4>${esc(item.name)}</h4>
+            <p>${esc(item.desc)}</p>
+            <div class="price">💰 ${item.price}</div>
+            <button type="button" class="btn ${missing <= 0 ? 'btn-gold' : ''}" ${missing > 0 ? 'disabled' : ''} data-id="${esc(item.id)}" onclick="buyItem(this.dataset.id)">
+              ${missing > 0 ? `Faltam ${missing}` : 'Resgatar'}
+            </button>
+          </div>`;
+      }).join('') || '<p class="muted">O professor ainda não cadastrou prêmios.</p>';
+
+      const mine = profile ? db.coupons.filter(c => c.profileId === profile.id).sort((a, b) => b.createdAt - a.createdAt) : [];
+      $('#my-coupons').innerHTML = mine.length
+        ? `<tr><th>Código</th><th>Prêmio</th><th>Data</th><th>Situação</th></tr>` + mine.map(c => `
+            <tr>
+              <td><strong style="color:var(--gold-2);letter-spacing:.08em">${esc(c.code)}</strong></td>
+              <td>${esc(c.itemIcon)} ${esc(c.itemName)}</td>
+              <td class="muted">${fmtDate(c.createdAt)}</td>
+              <td>${c.delivered ? '<span class="chip green">✓ Entregue</span>' : '<span class="chip gold">⏳ Aguardando</span>'}</td>
+            </tr>`).join('')
+        : `<tr><td class="muted">Nenhum cupom ainda.</td></tr>`;
+    }
+
+    const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    function newCouponCode() {
+      let code;
+      do {
+        const part = () => Array.from({ length: 3 }, () => pick(CODE_CHARS.split(''))).join('');
+        code = `JN-${part()}-${part()}`;
+      } while (db.coupons.some(c => c.code === code));
+      return code;
+    }
+
+    async function buyItem(itemId) {
+      const profile = db.profiles[$('#shop-profile').value];
+      const item = db.shop.find(i => i.id === itemId);
+      if (!profile || !item || profile.gold < item.price) return;
+      const ok = await confirmDialog('Resgatar prêmio?',
+        `<p>${esc(item.icon)} <strong>${esc(item.name)}</strong> por <strong style="color:var(--gold-2)">💰 ${item.price}</strong>.</p>
+         <p class="muted small" style="margin-top:6px">${esc(profile.name)} ficará com 💰 ${profile.gold - item.price}.</p>`, 'Resgatar');
+      if (!ok || profile.gold < item.price) return;
+      profile.gold -= item.price;
+      const coupon = {
+        code: newCouponCode(), profileId: profile.id, profileName: profile.name,
+        itemName: item.name, itemIcon: item.icon, price: item.price,
+        createdAt: Date.now(), delivered: false, deliveredAt: null
+      };
+      db.coupons.push(coupon);
+      saveDb();
+      playSound('victory');
+      burst(100);
+      renderShop();
+      await dialog('🎟️ Cupom gerado!', `
+        <div class="coupon">
+          <div style="font-size:2.4rem">${esc(item.icon)}</div>
+          <div><strong>${esc(item.name)}</strong></div>
+          <div class="code">${esc(coupon.code)}</div>
+          <div class="muted small">${esc(profile.name)} · ${fmtDate(coupon.createdAt)}</div>
+        </div>
+        <p class="muted small center" style="margin-top:10px">Mostre este código ao professor. Ele também fica salvo em "Meus cupons".</p>`,
+        [{ label: 'Fechar', value: true, cls: 'btn-gold' }]);
+    }
+
+    /* ==========================================================================
+       RANKING & ACHIEVEMENTS
+       ========================================================================== */
+    function openRanking() {
+      showScreen('ranking');
+      const list = profilesSorted();
+      $('#ranking-table').innerHTML = list.length
+        ? `<tr><th>#</th><th>Herói</th><th>Patente</th><th>XP</th><th class="hide-sm">Acertos</th><th class="hide-sm">Vitórias</th><th>Conquistas</th></tr>` +
+          list.map((p, i) => {
+            const lvl = levelFromXp(p.xp), rank = rankFor(lvl);
+            const acc = p.answered ? Math.round((p.correct / p.answered) * 100) : 0;
+            const badges = ACHIEVEMENTS.filter(a => p.achievements[a.id]).map(a => a.icon).join('');
+            return `
+              <tr class="${i === 0 ? 'top1' : ''}">
+                <td>${i < 3 ? ['🥇', '🥈', '🥉'][i] : i + 1}</td>
+                <td><span style="font-size:1.2rem">${p.avatar}</span> <strong>${esc(p.name)}</strong></td>
+                <td>${rank.icon} ${esc(rank.name)} <span class="muted">Nv ${lvl}</span></td>
+                <td>${p.xp}</td>
+                <td class="hide-sm">${acc}% <span class="muted">(${p.correct})</span></td>
+                <td class="hide-sm">${p.wins}</td>
+                <td class="badges">${badges || '<span class="muted">—</span>'}</td>
+              </tr>`;
+          }).join('')
+        : `<tr><td class="muted">Ainda não há heróis. Jogue uma partida!</td></tr>`;
+      fillProfileSelect($('#ach-profile'));
+      renderAchievements();
+    }
+
+    function renderAchievements() {
+      const profile = db.profiles[$('#ach-profile').value];
+      $('#ach-grid').innerHTML = ACHIEVEMENTS.map(a => {
+        const got = profile && profile.achievements[a.id];
+        return `<div class="ach ${got ? '' : 'locked'}"><span class="i" aria-hidden="true">${a.icon}</span><b>${esc(a.name)}</b><span class="muted">${esc(a.desc)}</span>${got ? `<div class="small" style="color:var(--emerald);margin-top:4px">✓ Desbloqueada</div>` : ''}</div>`;
+      }).join('');
+    }
+
+    /* ==========================================================================
+       TEACHER PANEL
+       ========================================================================== */
+    let teacherUnlocked = false;
+    let teacherCurrentTab = 'coupons';
+
+    async function askTeacherPin() {
+      if (teacherUnlocked) { openTeacher(); return; }
+      const ok = await dialog('🗝️ Área do professor', `
+        <label for="pin-input" class="muted small" style="font-weight:800">Digite o PIN</label>
+        <input id="pin-input" class="field" type="password" inputmode="numeric" maxlength="8" autocomplete="off" style="margin-top:6px"
+               onkeydown="if(event.key==='Enter'){event.preventDefault();document.querySelector('#dialog-actions .btn-gold').click()}">
+        <div class="form-error" id="pin-error"></div>
+        ${db.pinHash === hashText(DEFAULT_PIN) ? '<p class="muted small" style="margin-top:6px">PIN inicial: 1234. Troque em Ajustes no primeiro acesso.</p>' : ''}`,
+        [
+          { label: 'Cancelar', value: false, cls: 'btn-ghost' },
+          { label: 'Entrar', cls: 'btn-gold', value: () => {
+              if (hashText($('#pin-input').value) === db.pinHash) return true;
+              $('#pin-error').textContent = 'PIN incorreto.';
+              $('#pin-input').select();
+              return undefined;
+            } }
+        ]);
+      if (!ok) return;
+      teacherUnlocked = true;
+      if (db.pinHash === hashText(DEFAULT_PIN)) {
+        teacherCurrentTab = 'settings';
+        toast('🔑', 'Troque o PIN!', ' Com o PIN 1234, qualquer aluno consegue entrar no painel.');
+      }
+      openTeacher();
+    }
+
+    function teacherLogout() {
+      teacherUnlocked = false;
+      shopDraft = null;
+      showScreen('home');
+    }
+
+    function openTeacher() {
+      showScreen('teacher');
+      teacherTab(teacherCurrentTab);
+    }
+
+    function teacherTab(tab) {
+      if (teacherCurrentTab === 'shop' && tab !== 'shop' && shopDraft && $('#shop-editor')) shopDraft = readShopEditor();
+      teacherCurrentTab = tab;
+      document.querySelectorAll('.tab').forEach(t => t.setAttribute('aria-selected', String(t.dataset.tab === tab)));
+      ({ coupons: renderTeacherCoupons, shop: renderTeacherShop, students: renderTeacherStudents, settings: renderTeacherSettings })[tab]();
+    }
+
+    function renderTeacherCoupons(filter = '') {
+      const term = filter.trim().toUpperCase();
+      const list = db.coupons
+        .filter(c => !term || c.code.includes(term) || c.profileName.toUpperCase().includes(term))
+        .sort((a, b) => (a.delivered - b.delivered) || b.createdAt - a.createdAt);
+      const pending = db.coupons.filter(c => !c.delivered).length;
+      $('#teacher-body').innerHTML = `
+        <div class="row between" style="margin-bottom:12px">
+          <span class="chip gold">⏳ ${pending} aguardando entrega</span>
+          <input class="field" style="max-width:280px" placeholder="Buscar código ou aluno" value="${esc(filter)}" id="coupon-search"
+                 oninput="renderTeacherCoupons(this.value); const s = document.getElementById('coupon-search'); s.focus(); s.setSelectionRange(s.value.length, s.value.length);">
+        </div>
+        <div class="table-wrap"><table>
+          ${list.length ? `<tr><th>Código</th><th>Aluno</th><th>Prêmio</th><th>Data</th><th>Ação</th></tr>` + list.map(c => `
+            <tr>
+              <td><strong style="color:var(--gold-2);letter-spacing:.08em">${esc(c.code)}</strong></td>
+              <td>${esc(c.profileName)}</td>
+              <td>${esc(c.itemIcon)} ${esc(c.itemName)} <span class="muted">(💰 ${c.price})</span></td>
+              <td class="muted">${fmtDate(c.createdAt)}</td>
+              <td class="row" style="gap:6px">
+                ${c.delivered
+                  ? `<span class="chip green">✓ Entregue ${c.deliveredAt ? fmtDate(c.deliveredAt) : ''}</span>`
+                  : `<button type="button" class="btn btn-sm btn-gold" data-id="${esc(c.code)}" onclick="deliverCoupon(this.dataset.id)">Marcar entregue</button>
+                     <button type="button" class="btn btn-sm btn-danger" data-id="${esc(c.code)}" onclick="refundCoupon(this.dataset.id)">Cancelar e devolver</button>`}
+              </td>
+            </tr>`).join('') : `<tr><td class="muted">${term ? 'Nenhum cupom encontrado.' : 'Nenhum cupom resgatado ainda.'}</td></tr>`}
+        </table></div>
+        <p class="muted small" style="margin-top:12px">Um código só vale se aparece nesta lista. Confira se o nome do aluno bate antes de entregar o prêmio.</p>`;
+    }
+
+    function deliverCoupon(code) {
+      const c = db.coupons.find(x => x.code === code);
+      if (!c) return;
+      c.delivered = true;
+      c.deliveredAt = Date.now();
+      saveDb();
+      playSound('coin');
+      renderTeacherCoupons($('#coupon-search')?.value || '');
+    }
+
+    async function refundCoupon(code) {
+      const c = db.coupons.find(x => x.code === code);
+      if (!c) return;
+      const owner = db.profiles[c.profileId];
+      const ok = await confirmDialog('Cancelar cupom?', owner
+        ? `<p>O cupom <strong>${esc(c.code)}</strong> será apagado e <strong>💰 ${c.price}</strong> voltarão para ${esc(c.profileName)}.</p>`
+        : `<p>O cupom <strong>${esc(c.code)}</strong> será apagado. O aluno ${esc(c.profileName)} não existe mais, então o ouro não será devolvido.</p>`, 'Cancelar cupom', true);
+      if (!ok) return;
+      if (db.profiles[c.profileId]) db.profiles[c.profileId].gold += c.price;
+      db.coupons = db.coupons.filter(x => x.code !== code);
+      saveDb();
+      renderTeacherCoupons();
+    }
+
+    let shopDraft = null;  // unsaved copy edited in the teacher panel
+
+    function renderTeacherShop() {
+      if (!shopDraft) shopDraft = db.shop.map(i => ({ ...i }));
+      $('#teacher-body').innerHTML = `
+        <p class="muted small" style="margin-bottom:12px">Edite os prêmios reais que os alunos podem resgatar. Ícone = um emoji. Desmarque "Ativo" para esconder um prêmio da loja.</p>
+        <div id="shop-editor">
+          ${shopDraft.map((item, i) => `
+            <div class="edit-row" data-i="${i}">
+              <input class="field" aria-label="Ícone" value="${esc(item.icon)}" maxlength="4" data-k="icon">
+              <input class="field" aria-label="Nome" value="${esc(item.name)}" maxlength="40" data-k="name">
+              <input class="field desc" aria-label="Descrição" value="${esc(item.desc)}" maxlength="120" data-k="desc">
+              <input class="field" aria-label="Preço em ouro" type="number" min="1" max="99999" value="${item.price}" data-k="price">
+              <label class="small row" style="gap:4px"><input type="checkbox" data-k="active" ${item.active ? 'checked' : ''}> Ativo</label>
+              <button type="button" class="btn btn-sm btn-danger" aria-label="Remover prêmio" onclick="removeShopItem(${i})">🗑️</button>
+            </div>`).join('')}
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button type="button" class="btn" onclick="addShopItem()">➕ Novo prêmio</button>
+          <button type="button" class="btn btn-gold" onclick="saveShopEditor()">💾 Salvar prêmios</button>
+          <button type="button" class="btn btn-ghost" onclick="shopDraft = null; renderTeacherShop()">Descartar mudanças</button>
+          <button type="button" class="btn btn-ghost" onclick="resetShop()">Restaurar prêmios padrão</button>
+        </div>`;
+    }
+
+    function readShopEditor() {
+      return Array.from(document.querySelectorAll('#shop-editor .edit-row')).map(row => {
+        const get = k => row.querySelector(`[data-k="${k}"]`);
+        const original = shopDraft[Number(row.dataset.i)] || {};
+        return {
+          id: original.id || ('p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5)),
+          icon: get('icon').value.trim() || '🎁',
+          name: get('name').value.trim() || 'Prêmio',
+          desc: get('desc').value.trim(),
+          price: clamp(Math.round(num(get('price').value, 50)), 1, 99999),
+          active: get('active').checked
+        };
+      });
+    }
+
+    function saveShopEditor() {
+      db.shop = readShopEditor();
+      shopDraft = null;
+      saveDb();
+      toast('💾', 'Prêmios salvos!');
+      renderTeacherShop();
+    }
+    function addShopItem() {
+      shopDraft = readShopEditor();
+      shopDraft.push({ id: 'p' + Date.now().toString(36), icon: '🎁', name: 'Novo prêmio', desc: '', price: 100, active: true });
+      renderTeacherShop();
+    }
+    function removeShopItem(i) {
+      shopDraft = readShopEditor();
+      shopDraft.splice(i, 1);
+      renderTeacherShop();
+    }
+    async function resetShop() {
+      if (!(await confirmDialog('Restaurar prêmios padrão?', '<p class="muted">Seus prêmios personalizados serão substituídos.</p>', 'Restaurar', true))) return;
+      db.shop = DEFAULT_SHOP.map(i => ({ ...i }));
+      shopDraft = null;
+      saveDb();
+      renderTeacherShop();
+    }
+
+    function renderTeacherStudents() {
+      const list = profilesSorted();
+      $('#teacher-body').innerHTML = `
+        <div class="table-wrap"><table>
+          ${list.length ? `<tr><th>Aluno</th><th>Nível</th><th>Acertos</th><th>Ouro</th><th>Ajustar ouro</th><th></th></tr>` + list.map(p => {
+            const acc = p.answered ? Math.round((p.correct / p.answered) * 100) : 0;
+            return `
+              <tr>
+                <td>${p.avatar} <strong>${esc(p.name)}</strong><div class="muted small">${p.games} partidas · última ${fmtDate(p.lastPlayed)}</div></td>
+                <td>Nv ${levelFromXp(p.xp)} <span class="muted">(${p.xp} XP)</span></td>
+                <td>${acc}% <span class="muted">(${p.correct}/${p.answered})</span><div class="muted small">🍕 ${p.fracCorrect} · 🔢 ${p.decCorrect}</div></td>
+                <td><strong style="color:var(--gold-2)">💰 ${p.gold}</strong></td>
+                <td class="row" style="gap:4px">
+                  <button type="button" class="btn btn-sm" data-id="${esc(p.id)}" onclick="adjustGold(this.dataset.id, -10)">−10</button>
+                  <button type="button" class="btn btn-sm" data-id="${esc(p.id)}" onclick="adjustGold(this.dataset.id, 10)">+10</button>
+                  <button type="button" class="btn btn-sm" data-id="${esc(p.id)}" onclick="adjustGold(this.dataset.id, 50)">+50</button>
+                </td>
+                <td><button type="button" class="btn btn-sm btn-danger" aria-label="Apagar ${esc(p.name)}" data-id="${esc(p.id)}" onclick="deleteProfile(this.dataset.id)">🗑️</button></td>
+              </tr>`;
+          }).join('') : `<tr><td class="muted">Nenhum aluno cadastrado ainda.</td></tr>`}
+        </table></div>
+        <p class="muted small" style="margin-top:12px">Dica: dê ouro extra por participação, tarefa de casa ou bom comportamento.</p>`;
+    }
+
+    function adjustGold(id, delta) {
+      const p = db.profiles[id];
+      if (!p) return;
+      p.gold = Math.max(0, p.gold + delta);
+      if (delta > 0) p.goldEarned += delta;
+      saveDb();
+      playSound('coin');
+      renderTeacherStudents();
+    }
+
+    async function deleteProfile(id) {
+      const p = db.profiles[id];
+      if (!p) return;
+      if (!(await confirmDialog('Apagar aluno?', `<p>Todo o progresso de <strong>${esc(p.name)}</strong> será apagado. Isso não pode ser desfeito.</p>`, 'Apagar', true))) return;
+      delete db.profiles[id];
+      saveDb();
+      renderTeacherStudents();
+    }
+
+    function renderTeacherSettings() {
+      $('#teacher-body').innerHTML = `
+        <div class="slots">
+          <div class="slot">
+            <label for="set-timer">⏱️ Tempo por pergunta (segundos)</label>
+            <input id="set-timer" class="field" type="number" min="15" max="120" value="${db.settings.timer}">
+            <label for="set-mult" style="margin-top:12px">💰 Multiplicador de ouro (0,5 a 3)</label>
+            <input id="set-mult" class="field" type="number" min="0.5" max="3" step="0.5" value="${db.settings.goldMultiplier}">
+            <button type="button" class="btn btn-gold btn-sm" style="margin-top:12px" onclick="saveSettings()">Salvar ajustes</button>
+          </div>
+          <div class="slot">
+            <label for="set-pin">🔑 Novo PIN (4 a 8 números)</label>
+            <input id="set-pin" class="field" type="password" inputmode="numeric" maxlength="8" autocomplete="new-password">
+            <button type="button" class="btn btn-gold btn-sm" style="margin-top:12px" onclick="changePin()">Trocar PIN</button>
+            <div class="form-error" id="pin-msg"></div>
+          </div>
+          <div class="slot">
+            <label>💾 Cópia de segurança</label>
+            <p class="muted small">Os dados ficam só neste navegador. Exporte para guardar ou levar a outro computador.</p>
+            <div class="row" style="margin-top:10px">
+              <button type="button" class="btn btn-sm" onclick="exportData()">⬇️ Exportar</button>
+              <label class="btn btn-sm" style="cursor:pointer">⬆️ Importar<input type="file" accept="application/json,.json" hidden onchange="importData(this)"></label>
+            </div>
+          </div>
+          <div class="slot">
+            <label>⚠️ Zona de perigo</label>
+            <p class="muted small">Apaga alunos, cupons e prêmios personalizados deste navegador.</p>
+            <button type="button" class="btn btn-sm btn-danger" style="margin-top:10px" onclick="resetAll()">Apagar todos os dados</button>
+          </div>
+        </div>`;
+    }
+
+    function saveSettings() {
+      db.settings.timer = clamp(Math.round(num($('#set-timer').value, 45)), 15, 120);
+      db.settings.goldMultiplier = clamp(num($('#set-mult').value, 1), 0.5, 3);
+      saveDb();
+      toast('⚙️', 'Ajustes salvos!');
+      renderTeacherSettings();
+    }
+
+    function changePin() {
+      const pin = $('#set-pin').value.trim();
+      if (!/^\d{4,8}$/.test(pin)) {
+        $('#pin-msg').textContent = 'Use de 4 a 8 números.';
+        return;
+      }
+      db.pinHash = hashText(pin);
+      saveDb();
+      $('#set-pin').value = '';
+      $('#pin-msg').textContent = '';
+      toast('🔑', 'PIN alterado!');
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `jornada-dos-numeros-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    function importData(input) {
+      const file = input.files && input.files[0];
+      input.value = '';
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async () => {
+        let parsed;
+        try {
+          parsed = JSON.parse(reader.result);
+        } catch (e) {
+          toast('⚠️', 'Arquivo inválido', ' Não é um backup do jogo.');
+          return;
+        }
+        if (!parsed || typeof parsed !== 'object' || !parsed.profiles) {
+          toast('⚠️', 'Arquivo inválido', ' Não é um backup do jogo.');
+          return;
+        }
+        if (!(await confirmDialog('Importar backup?', '<p class="muted">Os dados atuais deste navegador serão substituídos pelos do arquivo.</p>', 'Importar', true))) return;
+        db = normalizeDb(parsed);
+        saveDb();
+        toast('✅', 'Backup importado!');
+        renderTeacherSettings();
+      };
+      reader.readAsText(file);
+    }
+
+    async function resetAll() {
+      const ok = await dialog('Apagar todos os dados?', `
+        <p>Isso apaga <strong>todos os alunos, cupons e prêmios</strong> deste navegador. Não dá para desfazer.</p>
+        <label for="reset-confirm" class="muted small" style="display:block;margin-top:10px">Digite <strong>APAGAR</strong> para confirmar:</label>
+        <input id="reset-confirm" class="field" autocomplete="off" style="margin-top:6px">`,
+        [
+          { label: 'Cancelar', value: false, cls: 'btn-ghost' },
+          { label: 'Apagar tudo', cls: 'btn-danger', value: () => ($('#reset-confirm').value.trim().toUpperCase() === 'APAGAR' ? true : undefined) }
+        ]);
+      if (!ok) return;
+      db = emptyDb();
+      saveDb();
+      teacherUnlocked = false;
+      toast('🗑️', 'Dados apagados.', ' PIN voltou para 1234.');
+      showScreen('home');
+    }
+
+    /* ==========================================================================
+       KEYBOARD
+       ========================================================================== */
+    document.addEventListener('keydown', e => {
+      const dialogOpen = !$('#modal-dialog').hidden || !$('#modal-rules').hidden;
+      if (!dialogOpen && !$('#modal-question').hidden && game && game.phase === 'question' && !current().isBot) {
+        const idx = { '1': 0, '2': 1, '3': 2, '4': 3, a: 0, b: 1, c: 2, d: 3 }[e.key.toLowerCase()];
+        if (idx !== undefined) { e.preventDefault(); answer(idx); }
+        return;
+      }
+      if (e.key === 'Escape') {
+        if (!$('#modal-dialog').hidden) {
+          $('#dialog-actions .btn-ghost')?.click();
+        } else if (!$('#modal-rules').hidden) {
+          closeModal('modal-rules');
+        }
+      }
+    });
+
+    // Init
+    drawDice(6);
+    renderSetup();
   </script>
 </body>
 </html>
