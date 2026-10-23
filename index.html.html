@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Corrida dos Decimais e Frações - Jogo de Matemática (6º Ano)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;700;800&display=swap');
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+      color: #f8fafc;
+      min-height: 100vh;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    h1, h2, h3, .font-fun {
+      font-family: 'Fredoka', cursive;
+    }
+
+    /* Glassmorphism Card Style */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .glass-card-light {
+      background: rgba(255, 255, 255, 0.95);
+      color: #0f172a;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Button Pulse Animation */
+    .btn-pulse {
+      animation: pulse-glow 2s infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 15px rgba(236, 72, 153, 0.5); }
+      50% { box-shadow: 0 0 30px rgba(236, 72, 153, 0.9); }
+    }
+
+    /* Dice Animation */
+    .dice {
+      transition: transform 0.6s ease-out;
+      transform-style: preserve-3d;
+    }
+    .dice-rolling {
+      animation: roll 0.6s infinite linear;
+    }
+
+    @keyframes roll {
+      0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+      100% { transform: rotateX(720deg) rotateY(360deg) rotateZ(360deg); }
+    }
+
+    /* Track Tiles Styling */
+    .tile-pulse {
+      animation: tile-glow 2s infinite ease-in-out;
+    }
+    @keyframes tile-glow {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #8b5cf6;
+      border-radius: 4px;
+    }
+
+    .avatar-token {
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+  </style>
+</head>
+<body class="p-2 sm:p-4 flex flex-col items-center justify-center">
+
+  <!-- Header & Audio Controls -->
+  <header class="w-full max-w-6xl flex justify-between items-center py-2 px-4 mb-2 glass-card rounded-2xl">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-pink-500 to-amber-400 flex items-center justify-center text-2xl shadow-lg">
+        📐
+      </div>
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-indigo-300">
+          A Corrida dos Decimais e Frações
+        </h1>
+        <p class="text-xs text-slate-300 hidden sm:block">Matemática Divertida - 6º Ano (BNCC)</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button id="btn-sound" onclick="toggleSound()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-sm flex items-center gap-2 transition">
+        <i id="sound-icon" class="fa-solid fa-volume-high text-pink-400"></i>
+        <span class="hidden sm:inline">Som</span>
+      </button>
+      <button onclick="showInstructions()" class="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold shadow-md transition flex items-center gap-2">
+        <i class="fa-solid fa-circle-question"></i>
+        <span class="hidden sm:inline">Regras</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="w-full max-w-6xl">
+
+    <!-- SETUP SCREEN -->
+    <section id="screen-setup" class="glass-card rounded-3xl p-6 sm:p-10 my-4 text-center">
+      <div class="inline-block px-4 py-1 rounded-full bg-pink-500/20 border border-pink-500/40 text-pink-300 font-bold text-sm mb-4">
+        ✨ 6º Ano do Ensino Fundamental
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-extrabold mb-4 text-white">Pronto para Desafiar a Matemática?</h2>
+      <p class="text-slate-300 max-w-2xl mx-auto mb-8 text-sm sm:text-base">
+        Avance pelo tabuleiro respondendo a desafios com números decimais e frações. Use a lógica, vença os desafios e alcance a linha de chegada em primeiro lugar!
+      </p>
+
+      <!-- Mode Selector -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto mb-8">
+        <div id="mode-card-single" onclick="selectGameMode('single')" class="cursor-pointer p-6 rounded-2xl border-2 border-pink-500 bg-pink-500/10 hover:bg-pink-500/20 transition text-left relative overflow-hidden group">
+          <div class="absolute -right-4 -bottom-4 text-6xl opacity-20 group-hover:scale-110 transition">🤖</div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-pink-400">Modo Solo</span>
+            <i class="fa-solid fa-circle-check text-pink-400 text-xl" id="mode-single-check"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-1">Jogador vs Robôs Inteligentes</h3>
+          <p class="text-xs text-slate-300">Jogue sozinho contra avatares controlados pelo computador.</p>
+        </div>
+
+        <div id="mode-card-multi" onclick="selectGameMode('multi')" class="cursor-pointer p-6 rounded-2xl border-2 border-slate-700 bg-slate-800/40 hover:bg-slate-800/80 transition text-left relative overflow-hidden group">
+          <div class="absolute -right-4 -bottom-4 text-6xl opacity-20 group-hover:scale-110 transition">👥</div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Multijogador Local</span>
+            <i class="fa-regular fa-circle text-slate-500 text-xl" id="mode-multi-check"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-1">Passe e Jogue em Grupo</h3>
+          <p class="text-xs text-slate-300">Ideal para grupos de 2 a 4 alunos na mesma tela/projetor.</p>
+        </div>
+      </div>
+
+      <!-- Player Count Selection (Visible on Multi) -->
+      <div id="player-count-box" class="hidden mb-8 max-w-md mx-auto">
+        <label class="block text-slate-300 text-sm font-bold mb-3">Número de Jogadores / Equipes:</label>
+        <div class="flex justify-center gap-4">
+          <button onclick="setPlayerCount(2)" class="btn-player-count w-12 h-12 rounded-xl bg-slate-800 border border-slate-600 font-bold text-lg hover:border-pink-500 transition" data-count="2">2</button>
+          <button onclick="setPlayerCount(3)" class="btn-player-count w-12 h-12 rounded-xl bg-slate-800 border border-slate-600 font-bold text-lg hover:border-pink-500 transition" data-count="3">3</button>
+          <button onclick="setPlayerCount(4)" class="btn-player-count w-12 h-12 rounded-xl bg-pink-500 border-2 border-pink-400 font-bold text-lg transition" data-count="4">4</button>
+        </div>
+      </div>
+
+      <!-- Start Button -->
+      <button onclick="startGame()" class="px-10 py-4 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 text-white font-extrabold text-xl shadow-2xl btn-pulse transition transform hover:scale-105">
+        🚀 Começar a Corrida!
+      </button>
+    </section>
+
+    <!-- GAMEPLAY BOARD SCREEN -->
+    <section id="screen-game" class="hidden grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- LEFT / TOP PANEL: Track & Players Info -->
+      <div class="lg:col-span-2 flex flex-col gap-4">
+        
+        <!-- Players Turn Bar -->
+        <div class="glass-card rounded-2xl p-4 flex flex-wrap justify-between items-center gap-3" id="players-turn-bar">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Board Canvas / Grid -->
+        <div class="glass-card rounded-3xl p-4 relative overflow-hidden flex flex-col justify-center min-h-[380px] bg-slate-900/60 border border-slate-700">
+          <div class="text-xs text-slate-400 font-bold uppercase tracking-wider mb-2 flex justify-between items-center px-2">
+            <span>🏁 Circuito do Reino da Matemática (20 Casas)</span>
+            <span id="game-status-label" class="text-amber-400">Vez de: <strong id="current-player-name" class="text-white">--</strong></span>
+          </div>
+
+          <!-- Interactive Board Container -->
+          <div id="board-grid" class="grid grid-cols-5 sm:grid-cols-5 gap-2 sm:gap-3 p-2 relative">
+            <!-- Tiles generated by JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT PANEL: Controls & Dice Roller -->
+      <div class="flex flex-col gap-4">
+
+        <!-- Turn Controls / Roll Dice Box -->
+        <div class="glass-card rounded-3xl p-6 flex flex-col items-center justify-center text-center text-white relative">
+          <div class="text-xs uppercase font-bold text-pink-400 mb-2">Painel de Ação</div>
+          <h3 id="panel-turn-title" class="text-xl font-bold mb-4">Sua Vez de Jogar!</h3>
+
+          <!-- Dice Visual -->
+          <div class="w-24 h-24 my-2 relative flex items-center justify-center">
+            <div id="dice-element" class="dice w-20 h-20 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-2xl shadow-2xl border-2 border-white/40 flex items-center justify-center text-4xl text-white font-black cursor-pointer hover:scale-105 transition">
+              <span id="dice-value">🎲</span>
+            </div>
+          </div>
+
+          <p class="text-xs text-slate-300 mt-2 mb-4" id="action-hint">Role o dado para avançar no circuito.</p>
+
+          <button id="btn-roll-dice" onclick="rollDice()" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-extrabold text-lg shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-dice"></i> Rolar o Dado!
+          </button>
+        </div>
+
+        <!-- Leaderboard Snapshot -->
+        <div class="glass-card rounded-3xl p-5 flex flex-col gap-3">
+          <h4 class="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-trophy text-amber-400"></i> Placar Parcial
+          </h4>
+          <div id="mini-leaderboard" class="flex flex-col gap-2">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: MATH QUESTION CHALLENGE -->
+  <div id="modal-question" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card-light rounded-3xl max-w-xl w-full p-6 sm:p-8 relative shadow-2xl border-4 border-purple-500 animate-bounce-short">
+      
+      <!-- Top Challenge Header -->
+      <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-200">
+        <div class="flex items-center gap-2">
+          <span id="question-avatar" class="text-3xl">🦊</span>
+          <div>
+            <span class="text-xs font-extrabold text-purple-600 uppercase tracking-wider" id="question-player-label">Desafio do Jogador</span>
+            <h4 class="text-lg font-bold text-slate-800" id="question-category">Decimais vs Frações</h4>
+          </div>
+        </div>
+        <!-- Live Timer Badge -->
+        <div class="flex items-center gap-2 bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-full text-amber-900 font-extrabold text-sm">
+          <i class="fa-solid fa-stopwatch text-amber-600"></i>
+          <span id="timer-text">45s</span>
+        </div>
+      </div>
+
+      <!-- Question Text -->
+      <div class="my-4">
+        <p class="text-xs font-bold text-purple-700 uppercase mb-1" id="question-context">Responda corretamente para avançar:</p>
+        <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug" id="question-title">
+          Qual número decimal representa a fração 3/4?
+        </h3>
+      </div>
+
+      <!-- Multiple Choice Options -->
+      <div id="options-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 my-6">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Feedback / Explanation Panel (Initially Hidden) -->
+      <div id="feedback-panel" class="hidden p-4 rounded-2xl mb-4 text-sm font-semibold transition">
+        <div id="feedback-title" class="font-extrabold text-base mb-1"></div>
+        <div id="feedback-text" class="text-slate-700 leading-relaxed"></div>
+      </div>
+
+      <!-- Continue Action Button (Visible after answering) -->
+      <div class="flex justify-end">
+        <button id="btn-next-turn" onclick="closeQuestionModal()" class="hidden px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold shadow-lg transition">
+          Continuar Corrida ➔
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: VICTORY CELEBRATION -->
+  <div id="modal-victory" class="fixed inset-0 bg-slate-950/90 backdrop-blur-lg z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl max-w-lg w-full p-8 text-center border-4 border-amber-400 relative overflow-hidden">
+      <div class="text-6xl mb-2 animate-bounce">🏆</div>
+      <h2 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 mb-1">
+        Temos um Campeão!
+      </h2>
+      <p class="text-slate-300 text-sm mb-6">A Corrida dos Decimais e Frações foi concluída com sucesso!</p>
+
+      <!-- Winner Badge -->
+      <div class="bg-white/10 rounded-2xl p-4 border border-white/20 mb-6 flex items-center justify-center gap-4">
+        <span id="winner-avatar" class="text-5xl">🦊</span>
+        <div class="text-left">
+          <h3 id="winner-name" class="text-2xl font-extrabold text-white">Raposa Matemática</h3>
+          <p class="text-xs text-amber-300 font-bold" id="winner-score">Chegou à Casa 20!</p>
+        </div>
+      </div>
+
+      <!-- Performance Stats -->
+      <div class="grid grid-cols-2 gap-3 mb-6 text-left text-xs">
+        <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+          <span class="text-slate-400 block">Precisão Geral</span>
+          <strong id="stat-accuracy" class="text-green-400 text-base font-bold">100% de acertos</strong>
+        </div>
+        <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700">
+          <span class="text-slate-400 block">Tempo Médio</span>
+          <strong id="stat-time" class="text-indigo-300 text-base font-bold">12 seg/questão</strong>
+        </div>
+      </div>
+
+      <button onclick="resetToSetup()" class="w-full py-4 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-extrabold text-lg shadow-xl transition transform hover:scale-105">
+        🔄 Jogar Novamente
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: INSTRUCTIONS -->
+  <div id="modal-instructions" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-card-light rounded-3xl max-w-md w-full p-6 text-slate-800 relative">
+      <div class="flex justify-between items-center mb-4 pb-2 border-b">
+        <h3 class="text-xl font-bold text-purple-900 flex items-center gap-2">
+          📖 Regras do Jogo
+        </h3>
+        <button onclick="hideInstructions()" class="text-slate-400 hover:text-slate-700 text-xl font-bold">&times;</button>
+      </div>
+
+      <ul class="space-y-3 text-sm text-slate-700">
+        <li class="flex gap-2">
+          <span class="text-purple-600 font-bold">1.</span>
+          <span>Role o dado na sua vez para saber quantas casas seu personagem tentarão avançar.</span>
+        </li>
+        <li class="flex gap-2">
+          <span class="text-purple-600 font-bold">2.</span>
+          <span>Responda ao **Desafio Matemático (BNCC 6º Ano)**. Se acertar, você avança o valor do dado! Se errar, permanece na mesma casa.</span>
+        </li>
+        <li class="flex gap-2">
+          <span class="text-purple-600 font-bold">3.</span>
+          <span>**Casas Especiais:**
+            <br>• 🚀 <strong>Pulo Duplo:</strong> Avança +2 casas extras.
+            <br>• 🐊 <strong>Pântano:</strong> Recua -2 casas.
+            <br>• 🌀 <strong>Portal:</strong> Troca de lugar com a casa sorteada.
+          </span>
+        </li>
+        <li class="flex gap-2">
+          <span class="text-purple-600 font-bold">4.</span>
+          <span>O primeiro jogador a atingir a **Casa 20** vence a corrida!</span>
+        </li>
+      </ul>
+
+      <button onclick="hideInstructions()" class="w-full mt-6 py-3 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 transition">
+        Entendi, Vamos Jogar!
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    /* ==========================================================================
+       AUDIO SYNTHESIZER (Web Audio API)
+       ========================================================================== */
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      const icon = document.getElementById('sound-icon');
+      if (soundEnabled) {
+        icon.className = 'fa-solid fa-volume-high text-pink-400';
+      } else {
+        icon.className = 'fa-solid fa-volume-xmark text-slate-500';
+      }
+    }
+
+    function playSound(type) {
+      if (!soundEnabled) return;
+      initAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'dice') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(200, now);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.15);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      } else if (type === 'correct') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+        osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.linearRampToValueAtTime(110, now + 0.3);
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'victory') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.setValueAtTime(554.37, now + 0.15);
+        osc.frequency.setValueAtTime(659.25, now + 0.3);
+        osc.frequency.setValueAtTime(880, now + 0.45);
+        gain.gain.setValueAtTime(0.4, now);
+        gain.gain.linearRampToValueAtTime(0.01, now + 0.7);
+        osc.start(now);
+        osc.stop(now + 0.7);
+      }
+    }
+
+    /* ==========================================================================
+       AVATARS & GAME CONFIG
+       ========================================================================== */
+    const ALL_AVATARS = [
+      { id: 'fox', name: 'Raposa Matemática', emoji: '🦊', color: 'from-orange-500 to-amber-500', isBot: false },
+      { id: 'owl', name: 'Coruja Digital', emoji: '🦉', color: 'from-purple-500 to-indigo-500', isBot: false },
+      { id: 'robot', name: 'Robô dos Cálculos', emoji: '🤖', color: 'from-cyan-500 to-blue-500', isBot: false },
+      { id: 'bear', name: 'Urso Cientista', emoji: '🐻', color: 'from-emerald-500 to-teal-500', isBot: false }
+    ];
+
+    const TOTAL_TILES = 20;
+
+    // Special tiles map (1-indexed)
+    const SPECIAL_TILES = {
+      4: { type: 'boost', label: '🚀 +2 Casas', description: 'Atalho Matemático! Avançou 2 casas extras.' },
+      8: { type: 'swamp', label: '🐊 -2 Casas', description: 'Pântano dos Decimais! Recuou 2 casas.' },
+      12: { type: 'boost', label: '🚀 +2 Casas', description: 'Impulso da Fração! Avançou 2 casas.' },
+      16: { type: 'swamp', label: '🐊 -2 Casas', description: 'Distração! Volte 2 casas.' }
+    };
+
+    /* ==========================================================================
+       BNCC 6TH GRADE MATH QUESTION BANK
+       ========================================================================== */
+    const QUESTION_BANK = [
+      {
+        category: "Frações & Decimais",
+        question: "Qual número decimal representa a fração 3/4?",
+        options: ["0,75", "0,34", "0,50", "0,25"],
+        correct: 0,
+        explanation: "Para transformar 3/4 em decimal, dividimos o numerador pelo denominador: 3 ÷ 4 = 0,75."
+      },
+      {
+        category: "Comparação de Decimais",
+        question: "Qual dos números a seguir é o MAIOR?",
+        options: ["0,45", "0,5", "0,09", "0,49"],
+        correct: 1,
+        explanation: "Comparando a primeira casa decimal (décimos): 0,5 equivale a 0,50, que é maior que 0,49 e 0,45."
+      },
+      {
+        category: "Operações com Decimais",
+        question: "Qual é o resultado da soma: 1,5 + 2,75?",
+        options: ["4,25", "3,80", "4,15", "3,25"],
+        correct: 0,
+        explanation: "Alinhando a vírgula: 1,50 + 2,75 = 4,25."
+      },
+      {
+        category: "Fração de uma Quantidade",
+        question: "Quanto é 1/3 de 24 alunos da turma?",
+        options: ["8 alunos", "6 alunos", "12 alunos", "9 alunos"],
+        correct: 0,
+        explanation: "Para calcular 1/3 de 24, dividimos 24 por 3 = 8 alunos."
+      },
+      {
+        category: "Equivalência de Frações",
+        question: "Qual das frações abaixo é equivalente a 1/2?",
+        options: ["5/10", "2/5", "3/8", "4/6"],
+        correct: 0,
+        explanation: "Simplificando 5/10 por 5, obtemos 1/2."
+      },
+      {
+        category: "Porcentagem & Decimal",
+        question: "O número decimal 0,25 corresponde a qual porcentagem?",
+        options: ["25%", "2,5%", "50%", "250%"],
+        correct: 0,
+        explanation: "0,25 é igual a 25/100, ou seja, 25%."
+      },
+      {
+        category: "Subtração com Decimais",
+        question: "Quanto é R$ 10,00 - R$ 3,40?",
+        options: ["R$ 6,60", "R$ 7,60", "R$ 6,40", "R$ 7,40"],
+        correct: 0,
+        explanation: "10,00 - 3,40 = 6,60."
+      },
+      {
+        category: "Frações no Cotidiano",
+        question: "Se uma pizza foi dividida em 8 pedaços e você comeu 2, qual fração sobrou?",
+        options: ["6/8", "2/8", "4/8", "1/8"],
+        correct: 0,
+        explanation: "8 pedaços - 2 comidos = 6 pedaços restantes. A fração restante é 6/8."
+      },
+      {
+        category: "Multiplicação com Decimais",
+        question: "Quanto é 0,5 × 4?",
+        options: ["2,0", "0,2", "20", "1,5"],
+        correct: 0,
+        explanation: "Metade de 4 (0,5 × 4) é igual a 2."
+      },
+      {
+        category: "Leitura de Decimais",
+        question: "Como se lê o número decimal 0,08?",
+        options: ["Oito centésimos", "Oito décimos", "Oito milésimos", "Oito inteiros"],
+        correct: 0,
+        explanation: "A segunda casa após a vírgula representa os centésimos. Portanto: 8 centésimos."
+      }
+    ];
+
+    /* ==========================================================================
+       GAME STATE
+       ========================================================================== */
+    let gameMode = 'single'; // 'single' or 'multi'
+    let playerCount = 2;
+    let players = [];
+    let currentPlayerIdx = 0;
+    let currentDiceValue = 1;
+    let isRolling = false;
+    let currentQuestion = null;
+    let questionTimer = null;
+    let timeLeft = 45;
+
+    // Statistics tracking
+    let stats = {
+      totalQuestions: 0,
+      correctQuestions: 0,
+      timeSpent: 0
+    };
+
+    /* ==========================================================================
+       SETUP & INITIALIZATION
+       ========================================================================== */
+    function selectGameMode(mode) {
+      gameMode = mode;
+      const singleCard = document.getElementById('mode-card-single');
+      const multiCard = document.getElementById('mode-card-multi');
+      const singleCheck = document.getElementById('mode-single-check');
+      const multiCheck = document.getElementById('mode-multi-check');
+      const countBox = document.getElementById('player-count-box');
+
+      if (mode === 'single') {
+        singleCard.className = "cursor-pointer p-6 rounded-2xl border-2 border-pink-500 bg-pink-500/10 hover:bg-pink-500/20 transition text-left relative overflow-hidden group";
+        multiCard.className = "cursor-pointer p-6 rounded-2xl border-2 border-slate-700 bg-slate-800/40 hover:bg-slate-800/80 transition text-left relative overflow-hidden group";
+        singleCheck.className = "fa-solid fa-circle-check text-pink-400 text-xl";
+        multiCheck.className = "fa-regular fa-circle text-slate-500 text-xl";
+        countBox.classList.add('hidden');
+      } else {
+        multiCard.className = "cursor-pointer p-6 rounded-2xl border-2 border-pink-500 bg-pink-500/10 hover:bg-pink-500/20 transition text-left relative overflow-hidden group";
+        singleCard.className = "cursor-pointer p-6 rounded-2xl border-2 border-slate-700 bg-slate-800/40 hover:bg-slate-800/80 transition text-left relative overflow-hidden group";
+        multiCheck.className = "fa-solid fa-circle-check text-pink-400 text-xl";
+        singleCheck.className = "fa-regular fa-circle text-slate-500 text-xl";
+        countBox.classList.remove('hidden');
+      }
+      playSound('dice');
+    }
+
+    function setPlayerCount(count) {
+      playerCount = count;
+      document.querySelectorAll('.btn-player-count').forEach(btn => {
+        if (parseInt(btn.dataset.count) === count) {
+          btn.className = "btn-player-count w-12 h-12 rounded-xl bg-pink-500 border-2 border-pink-400 font-bold text-lg transition";
+        } else {
+          btn.className = "btn-player-count w-12 h-12 rounded-xl bg-slate-800 border border-slate-600 font-bold text-lg hover:border-pink-500 transition";
+        }
+      });
+      playSound('dice');
+    }
+
+    function startGame() {
+      initAudio();
+      players = [];
+
+      if (gameMode === 'single') {
+        players.push({ ...ALL_AVATARS[0], name: 'Você (Humano)', isBot: false, position: 0 });
+        players.push({ ...ALL_AVATARS[1], name: 'Coruja Bot', isBot: true, position: 0 });
+        players.push({ ...ALL_AVATARS[2], name: 'Robô Bot', isBot: true, position: 0 });
+      } else {
+        for (let i = 0; i < playerCount; i++) {
+          players.push({
+            ...ALL_AVATARS[i],
+            name: `Jogador ${i + 1} (${ALL_AVATARS[i].emoji})`,
+            isBot: false,
+            position: 0
+          });
+        }
+      }
+
+      currentPlayerIdx = 0;
+      stats = { totalQuestions: 0, correctQuestions: 0, timeSpent: 0 };
+
+      document.getElementById('screen-setup').classList.add('hidden');
+      document.getElementById('screen-game').classList.remove('hidden');
+
+      renderBoard();
+      updateTurnUI();
+      updateLeaderboard();
+      playSound('victory');
+    }
+
+    /* ==========================================================================
+       BOARD & TOKEN RENDERING
+       ========================================================================== */
+    function renderBoard() {
+      const grid = document.getElementById('board-grid');
+      grid.innerHTML = '';
+
+      for (let i = 1; i <= TOTAL_TILES; i++) {
+        const isSpecial = SPECIAL_TILES[i];
+        const tile = document.createElement('div');
+
+        let tileBg = "bg-slate-800/80 border-slate-700";
+        let specialBadge = "";
+
+        if (i === 1) {
+          tileBg = "bg-emerald-900/60 border-emerald-500/80";
+          specialBadge = `<span class="text-[9px] font-bold text-emerald-400 block">INÍCIO</span>`;
+        } else if (i === TOTAL_TILES) {
+          tileBg = "bg-amber-900/60 border-amber-500/80 tile-pulse";
+          specialBadge = `<span class="text-[9px] font-bold text-amber-400 block">CHEGADA 🏁</span>`;
+        } else if (isSpecial) {
+          if (isSpecial.type === 'boost') {
+            tileBg = "bg-indigo-900/60 border-indigo-500/80";
+            specialBadge = `<span class="text-[9px] font-bold text-indigo-300 block">🚀 +2</span>`;
+          } else {
+            tileBg = "bg-rose-900/60 border-rose-500/80";
+            specialBadge = `<span class="text-[9px] font-bold text-rose-300 block">🐊 -2</span>`;
+          }
+        }
+
+        tile.className = `min-h-[60px] sm:min-h-[75px] rounded-2xl border-2 ${tileBg} p-1.5 flex flex-col justify-between relative transition shadow-inner`;
+        tile.id = `tile-${i}`;
+
+        tile.innerHTML = `
+          <div class="flex justify-between items-center w-full">
+            <span class="text-xs font-black text-slate-400">${i}</span>
+            ${specialBadge}
+          </div>
+          <div class="tokens-container flex flex-wrap gap-1 justify-center items-center min-h-[28px]" id="tokens-tile-${i}"></div>
+        `;
+
+        grid.appendChild(tile);
+      }
+
+      renderTokens();
+    }
+
+    function renderTokens() {
+      // Clear all tiles
+      for (let i = 1; i <= TOTAL_TILES; i++) {
+        const container = document.getElementById(`tokens-tile-${i}`);
+        if (container) container.innerHTML = '';
+      }
+
+      // Render players at positions
+      players.forEach((player, idx) => {
+        const pos = player.position === 0 ? 1 : player.position;
+        const container = document.getElementById(`tokens-tile-${pos}`);
+
+        if (container) {
+          const token = document.createElement('div');
+          token.className = `w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr ${player.color} flex items-center justify-center text-sm sm:text-base shadow-lg border-2 border-white avatar-token ${idx === currentPlayerIdx ? 'ring-4 ring-pink-400 scale-110 z-10' : 'opacity-90'}`;
+          token.title = player.name;
+          token.innerText = player.emoji;
+          container.appendChild(token);
+        }
+      });
+    }
+
+    /* ==========================================================================
+       TURN MANAGEMENT & DICE ROLLING
+       ========================================================================== */
+    function updateTurnUI() {
+      const activePlayer = players[currentPlayerIdx];
+
+      document.getElementById('current-player-name').innerText = activePlayer.name;
+      document.getElementById('panel-turn-title').innerText = `Vez de ${activePlayer.name}`;
+      
+      const btnRoll = document.getElementById('btn-roll-dice');
+      const actionHint = document.getElementById('action-hint');
+
+      if (activePlayer.isBot) {
+        btnRoll.disabled = true;
+        btnRoll.className = "w-full py-3.5 rounded-xl bg-slate-700 text-slate-400 font-bold text-lg cursor-not-allowed flex items-center justify-center gap-2";
+        actionHint.innerText = "O Computador está rolando o dado...";
+        setTimeout(rollDice, 1200);
+      } else {
+        btnRoll.disabled = false;
+        btnRoll.className = "w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-extrabold text-lg shadow-lg transition transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer";
+        actionHint.innerText = "Clique no botão para rolar o dado.";
+      }
+
+      // Render Top Turn Bar
+      const turnBar = document.getElementById('players-turn-bar');
+      turnBar.innerHTML = players.map((p, idx) => `
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${idx === currentPlayerIdx ? 'bg-pink-500/20 border-2 border-pink-500 text-white' : 'bg-slate-800/60 border border-slate-700 text-slate-400'}">
+          <span class="text-base">${p.emoji}</span>
+          <span>${p.name}</span>
+          <span class="bg-slate-900/80 px-2 py-0.5 rounded-md text-amber-300">Casa ${p.position === 0 ? 1 : p.position}</span>
+        </div>
+      `).join('');
+
+      renderTokens();
+    }
+
+    function rollDice() {
+      if (isRolling) return;
+      isRolling = true;
+      playSound('dice');
+
+      const diceEl = document.getElementById('dice-element');
+      const diceValueEl = document.getElementById('dice-value');
+
+      diceEl.classList.add('dice-rolling');
+
+      let rollInterval = setInterval(() => {
+        diceValueEl.innerText = Math.floor(Math.random() * 6) + 1;
+      }, 80);
+
+      setTimeout(() => {
+        clearInterval(rollInterval);
+        diceEl.classList.remove('dice-rolling');
+
+        currentDiceValue = Math.floor(Math.random() * 6) + 1;
+        diceValueEl.innerText = currentDiceValue;
+        isRolling = false;
+
+        // Open Math Question Challenge Modal
+        setTimeout(openQuestionModal, 600);
+      }, 800);
+    }
+
+    /* ==========================================================================
+       QUESTION & CHALLENGE LOGIC
+       ========================================================================== */
+    function openQuestionModal() {
+      const player = players[currentPlayerIdx];
+      
+      // Select random question from bank
+      const randomIdx = Math.floor(Math.random() * QUESTION_BANK.length);
+      currentQuestion = QUESTION_BANK[randomIdx];
+
+      document.getElementById('question-avatar').innerText = player.emoji;
+      document.getElementById('question-player-label').innerText = `Desafio para ${player.name}`;
+      document.getElementById('question-category').innerText = currentQuestion.category;
+      document.getElementById('question-title').innerText = currentQuestion.question;
+
+      // Render Options
+      const container = document.getElementById('options-container');
+      container.innerHTML = '';
+
+      currentQuestion.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "p-4 rounded-xl border-2 border-slate-200 hover:border-purple-500 hover:bg-purple-50 text-left font-bold text-slate-800 transition flex items-center gap-3";
+        btn.innerHTML = `<span class="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-extrabold text-sm">${String.fromCharCode(65 + idx)}</span> ${opt}`;
+        btn.onclick = () => handleAnswer(idx);
+        container.appendChild(btn);
+      });
+
+      // Reset Feedback
+      document.getElementById('feedback-panel').className = "hidden p-4 rounded-2xl mb-4 text-sm font-semibold transition";
+      document.getElementById('btn-next-turn').classList.add('hidden');
+
+      // Start Timer
+      timeLeft = 45;
+      document.getElementById('timer-text').innerText = `${timeLeft}s`;
+      clearInterval(questionTimer);
+      questionTimer = setInterval(() => {
+        timeLeft--;
+        stats.timeSpent++;
+        document.getElementById('timer-text').innerText = `${timeLeft}s`;
+
+        if (timeLeft <= 0) {
+          clearInterval(questionTimer);
+          handleAnswer(-1); // Time out
+        }
+      }, 1000);
+
+      document.getElementById('modal-question').classList.remove('hidden');
+
+      // Auto Bot Answer
+      if (player.isBot) {
+        setTimeout(() => {
+          // Bot has 75% accuracy
+          const isCorrect = Math.random() < 0.75;
+          const chosenIdx = isCorrect ? currentQuestion.correct : (currentQuestion.correct + 1) % currentQuestion.options.length;
+          handleAnswer(chosenIdx);
+        }, 2000);
+      }
+    }
+
+    function handleAnswer(selectedIndex) {
+      clearInterval(questionTimer);
+      stats.totalQuestions++;
+
+      const isCorrect = selectedIndex === currentQuestion.correct;
+      if (isCorrect) stats.correctQuestions++;
+
+      const feedbackPanel = document.getElementById('feedback-panel');
+      const feedbackTitle = document.getElementById('feedback-title');
+      const feedbackText = document.getElementById('feedback-text');
+      const optionsContainer = document.getElementById('options-container');
+
+      // Disable options buttons
+      Array.from(optionsContainer.children).forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === currentQuestion.correct) {
+          btn.className = "p-4 rounded-xl border-2 border-green-500 bg-green-100 text-slate-900 font-bold flex items-center gap-3";
+        } else if (idx === selectedIndex) {
+          btn.className = "p-4 rounded-xl border-2 border-red-500 bg-red-100 text-slate-900 font-bold flex items-center gap-3";
+        } else {
+          btn.className = "p-4 rounded-xl border-2 border-slate-200 bg-slate-100 text-slate-400 font-bold flex items-center gap-3 opacity-60";
+        }
+      });
+
+      if (isCorrect) {
+        playSound('correct');
+        feedbackPanel.className = "p-4 rounded-2xl mb-4 text-sm font-semibold bg-green-100 border border-green-300 text-green-900 block";
+        feedbackTitle.innerText = "🎉 Resposta Correta! + Avança no Tabuleiro!";
+        feedbackText.innerText = currentQuestion.explanation;
+
+        // Move active player
+        movePlayer(players[currentPlayerIdx], currentDiceValue);
+      } else {
+        playSound('wrong');
+        feedbackPanel.className = "p-4 rounded-2xl mb-4 text-sm font-semibold bg-red-100 border border-red-300 text-red-900 block";
+        feedbackTitle.innerText = "❌ Resposta Incorreta!";
+        feedbackText.innerText = `Explicação: ${currentQuestion.explanation}`;
+      }
+
+      const activePlayer = players[currentPlayerIdx];
+      if (activePlayer.isBot) {
+        setTimeout(closeQuestionModal, 2500);
+      } else {
+        document.getElementById('btn-next-turn').classList.remove('hidden');
+      }
+    }
+
+    function movePlayer(player, steps) {
+      let currentPos = player.position === 0 ? 1 : player.position;
+      let newPos = currentPos + steps;
+
+      if (newPos > TOTAL_TILES) newPos = TOTAL_TILES;
+
+      player.position = newPos;
+
+      // Check special tiles
+      const special = SPECIAL_TILES[newPos];
+      if (special) {
+        if (special.type === 'boost') {
+          player.position = Math.min(TOTAL_TILES, newPos + 2);
+        } else if (special.type === 'swamp') {
+          player.position = Math.max(1, newPos - 2);
+        }
+      }
+
+      renderTokens();
+      updateLeaderboard();
+
+      // Check Victory
+      if (player.position >= TOTAL_TILES) {
+        setTimeout(() => showVictoryModal(player), 800);
+      }
+    }
+
+    function closeQuestionModal() {
+      document.getElementById('modal-question').classList.add('hidden');
+
+      // Check if winner arrived
+      const winner = players.find(p => p.position >= TOTAL_TILES);
+      if (winner) return;
+
+      // Pass turn to next player
+      currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
+      updateTurnUI();
+    }
+
+    /* ==========================================================================
+       LEADERBOARD & VICTORY
+       ========================================================================== */
+    function updateLeaderboard() {
+      const sorted = [...players].sort((a, b) => (b.position || 1) - (a.position || 1));
+      const container = document.getElementById('mini-leaderboard');
+
+      container.innerHTML = sorted.map((p, idx) => `
+        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-800/80 border border-slate-700 text-xs">
+          <div class="flex items-center gap-2">
+            <span class="font-extrabold ${idx === 0 ? 'text-amber-400' : 'text-slate-400'}">#${idx + 1}</span>
+            <span class="text-base">${p.emoji}</span>
+            <span class="font-bold text-white">${p.name}</span>
+          </div>
+          <span class="font-black text-pink-400">Casa ${p.position === 0 ? 1 : p.position}/20</span>
+        </div>
+      `).join('');
+    }
+
+    function showVictoryModal(winner) {
+      playSound('victory');
+
+      // Trigger Confetti Celebration
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+      }
+
+      document.getElementById('winner-avatar').innerText = winner.emoji;
+      document.getElementById('winner-name').innerText = winner.name;
+      document.getElementById('winner-score').innerText = `Alcançou a Casa 20 em primeiro lugar!`;
+
+      // Stats calculation
+      const acc = stats.totalQuestions > 0 ? Math.round((stats.correctQuestions / stats.totalQuestions) * 100) : 100;
+      const avgTime = stats.totalQuestions > 0 ? Math.round(stats.timeSpent / stats.totalQuestions) : 0;
+
+      document.getElementById('stat-accuracy').innerText = `${acc}% de acertos`;
+      document.getElementById('stat-time').innerText = `${avgTime} seg/questão`;
+
+      document.getElementById('modal-victory').classList.remove('hidden');
+    }
+
+    function resetToSetup() {
+      document.getElementById('modal-victory').classList.add('hidden');
+      document.getElementById('screen-game').classList.add('hidden');
+      document.getElementById('screen-setup').classList.remove('hidden');
+    }
+
+    /* ==========================================================================
+       INSTRUCTIONS MODAL
+       ========================================================================== */
+    function showInstructions() {
+      document.getElementById('modal-instructions').classList.remove('hidden');
+    }
+    function hideInstructions() {
+      document.getElementById('modal-instructions').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
